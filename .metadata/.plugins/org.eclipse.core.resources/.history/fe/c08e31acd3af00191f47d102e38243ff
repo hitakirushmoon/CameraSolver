@@ -1,0 +1,156 @@
+package yeet.linegame;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+
+public class Attempt1 {
+	public static void main(String[] args) {
+		Game.genPartition(9).forEach(x -> {
+			Game a = new Game(x);
+			a.search();
+			System.out.println(Arrays.toString(a.table) + x);
+		});
+//		Game a = new Game(Game.genPartition(4).peekFirst());
+//		a.search();
+//		System.out.println(Arrays.toString(a.table) + a.board);
+	}
+
+}
+
+class Game {
+	LinkedList<Integer> board;
+	int[] table;
+	int n;
+
+	public Game(LinkedList<Integer> board) {
+		this.board = board;
+		n = 0;
+		for (int i = 0; i < board.size(); i++) {
+			int a = board.remove();
+			n += a;
+			board.add(a);
+		}
+		int a = 0;
+		for (int i = 0; i < n; i++) {
+			a += p(i);
+		}
+		table = new int[a];
+	}
+
+	public void search() {
+		search(board);
+	}
+
+	private void search(LinkedList<Integer> board) {
+		int ind = partitionIndexing(board);
+		if (board.size() == 0) {
+			table[0] = 1;
+			return;
+		}
+		int max = Integer.MIN_VALUE;
+		for (int i = 0; i < board.size(); i++) {
+			int current = board.remove();
+			for (int start = 0; start < current; start++) {
+				for (int end = start + 1; end < current + 1; end++) {
+					LinkedList<Integer> boardClone = new LinkedList<Integer>(board);
+					if (start != 0) {
+						boardClone.add(start);
+					}
+					if (current - end != 0) {
+						boardClone.add(current - end);
+					}
+					int index = partitionIndexing(boardClone);
+					if (table[index] != 0) {
+						max = Math.max(-table[index], max);
+//						path.addLast(new LinkedList<Integer>(boardClone));
+//						System.out.println(path);
+//						path.removeLast();
+					} else {
+//						path.addLast(new LinkedList<Integer>(boardClone));
+//						System.out.println(path);
+						search(boardClone);
+						max = Math.max(-table[index], max);
+//						path.removeLast();
+					}
+				}
+			}
+			board.add(current);
+		}
+		if (ind < table.length) {
+			table[ind] = max + 1;
+		}
+	}
+
+	public int partitionRank(LinkedList<Integer> board) {
+		return board.peekFirst() - board.size();
+	}
+
+	public static int partitionIndexing(LinkedList<Integer> partition) {
+		int n = 0;
+		for (int i = 0; i < partition.size(); i++) {
+			int a = partition.remove();
+			n += a;
+			partition.add(a);
+		}
+
+		return partitionIndexing(new LinkedList<Integer>(partition), n);
+	}
+
+	private static int partitionIndexing(LinkedList<Integer> partition, int n) {
+		Collections.sort(partition);
+		Collections.reverse(partition);
+//		System.out.println(partition);
+		int sum = 0;
+		int a = 0;
+		for (int i = 0; i < n; i++) {
+			a += p(i);
+		}
+		while (!partition.isEmpty()) {
+			int k = partition.removeFirst();
+			sum += p(n, k - 1);
+			n -= k;
+		}
+//		System.out.println(sum + a);
+		return sum + a;
+	}
+
+	public static LinkedList<LinkedList<Integer>> genPartition(int n) {
+		return genPartition(n, n);
+	}
+
+	private static LinkedList<LinkedList<Integer>> genPartition(int n, int limit) {
+		LinkedList<LinkedList<Integer>> solutions = new LinkedList<LinkedList<Integer>>();
+		if (n == 0) {
+			LinkedList<Integer> identity = new LinkedList<Integer>();
+			solutions.add(identity);
+		} else {
+			for (int i = limit; i > 0; i--) {
+				LinkedList<LinkedList<Integer>> partialSolution = genPartition(n - i, Math.min(n - i, i));
+				int a = i;
+				partialSolution.forEach(x -> x.addFirst(a));
+				solutions.addAll(partialSolution);
+			}
+		}
+		return solutions;
+	}
+
+	public static int p(int n) {
+		return p(n, n);
+	}
+
+	public static int p(int n, int k) {
+		if (n < 0) {
+			return 0;
+		}
+		if (n == 0) {
+			return 1;
+		}
+		if (k == 0) {
+			return 0;
+		}
+
+		return p(n - k, k) + p(n, k - 1);
+	}
+
+}

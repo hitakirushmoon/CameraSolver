@@ -1,0 +1,45 @@
+package controller;
+
+import interfaces.AnimatedObject;
+import objects.Coordinates;
+import objects.Robot;
+
+public class MotorController extends AnimatedObject {
+	public final Robot r = new Robot();
+	public final Coordinates targetPos = new Coordinates(500, 0);
+	public final double targetPhi = Math.PI / 2;
+
+	public MotorController() {
+		super();
+	}
+
+	PIDControl PID = new PIDControl(1, 0, 0);
+
+	public void update() {
+		super.update();
+		double error = (r.getGyro() - targetPhi);
+		if (Math.abs(error) > Math.PI / 720) {
+			double PIDoutput = PID.output(error);
+			System.out.println(PIDoutput);
+			r.setLeftMotorSpeed(0.0 - PIDoutput);
+			r.setRightMotorSpeed(0.0 + PIDoutput);
+		} else {
+			r.setLeftMotorSpeed(0);
+			r.setRightMotorSpeed(0);
+			System.out.println(r.getGyro());
+		}
+
+//		if (r.getGyro() < targetPhi) {
+//			r.setLeftMotorSpeed(0.1);
+//			r.setRightMotorSpeed(-0.1);
+//		}
+//		else {
+//			r.setLeftMotorSpeed(0);
+//			r.setRightMotorSpeed(0);	
+//		}
+		
+//		r.setLeftMotorSpeed(1);
+//		r.setRightMotorSpeed(1);
+	}
+
+}

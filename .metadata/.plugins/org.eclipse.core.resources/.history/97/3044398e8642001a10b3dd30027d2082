@@ -1,0 +1,121 @@
+package kata;
+
+import java.util.Random;
+
+public class Triangle {
+	public static void main(String[] args) {
+		StringBuilder test = new StringBuilder();
+		Random r = new Random();
+		for (int i = 0; i < Math.pow(3, 18); i++) {
+			test.append(toChar(r.nextInt(3)));
+		}
+		System.out.println("done!");
+		long time = System.nanoTime();
+		System.out.println(triangle(test.toString()));
+		System.out.println((System.nanoTime() - time) / 1E9);
+//		System.out.println(RGB.triangle(test.toString()));
+	}
+	static int nck(int n1,int k) 
+	  {  if (n1 < k) {return 0;}
+	     if (n1 == 0 && k ==0 ){return 1;}
+	     if (k==0) {return 1;}
+	    int a=1;
+	    int b=1;
+	    int c=1;
+	   for (int a1=1; a1 <= n1; a1++){a=a*a1;}
+	   for (int b1=1; b1 <= k; b1++){b=b*b1;}
+	   for (int c1=1; c1 <= n1-k; c1++){c=c*c1;}
+	   return a/(b*c);
+	  }
+	  
+	  
+
+	  public static int triangle(final String row) {
+	   
+	   
+	   int[] arr= new int[row.length()];
+	   int n= arr.length-1;
+	   for (int i=0; i< row.length() ; i++)
+	     {  if (row.charAt(i) == 'R') {arr[i]=0;}
+	        if (row.charAt(i) == 'B') {arr[i]=1;}
+	        if (row.charAt(i) == 'G') {arr[i]=2;}
+	     }
+	     
+	     int a1= arr.length-1;
+	     int b1= 0;
+	  int[] n3 = new int[11];
+	  
+	  while (a1>0)
+	  { n3[b1]= a1%3;
+	    a1= (int) (a1/3);
+	    b1++;
+	    
+	  }
+	  //fill array
+	  for (int i = b1+1; i <=10; i++)
+	  {n3[b1]=0;}
+	  
+	  
+	  int sum=0;
+	  int[] k3= new int[11];
+	  
+	  
+	  for (int k=0; k < arr.length; k++) {
+	    
+	    int a= k;
+	    int b= 0;
+	    int pr=1;
+	    while (a>0)
+	    { k3[b]= a%3;
+	    a= (int) (a/3);
+	    b++;}
+	    
+	    //fill array
+	    for (int i5 = b+1; i5 <=10; i5++)
+	    {k3[b]=0;}
+	    
+	     for (int i9=0; i9<=10; i9++)
+	      {pr=pr*nck(n3[i9],k3[i9]);}
+	      sum = sum+ pr*arr[k];
+	      sum = sum%3;
+	      //reset array
+	      for (int i4=0; i4 <=10; i4++)
+	      {k3[i4]=0;}
+	    
+	  
+	  }
+	    if (arr.length%2==0){sum=(sum%3)*2;}  else{sum=(sum%3);}
+	    if (sum%3 == 0) {return 'R';}
+	    if (sum%3 == 1) {return 'B';}
+	    if (sum%3 == 2) {return 'G';}
+
+	    return 2;
+	    
+	    }
+
+	public static int toInt(char rgb) {
+		switch (rgb) {
+		case 'R':
+			return 0;
+		case 'G':
+			return 1;
+		case 'B':
+			return -1;
+		default:
+			return 0;
+		}
+	}
+
+	public static char toChar(int rgb) {
+		switch ((rgb % 3 + 3) % 3) {
+		case 0:
+			return 'R';
+		case 1:
+			return 'G';
+		case 2:
+			return 'B';
+		default:
+			return ' ';
+		}
+	}
+}

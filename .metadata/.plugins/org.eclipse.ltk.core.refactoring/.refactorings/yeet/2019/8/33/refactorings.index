@@ -1,0 +1,32 @@
+1565514023365	Rename local variable 'intialCreatureCount'
+1565516685296	Rename method 'subtract'
+1565517023193	Rename local variable 'creature'
+1565517446915	Rename local variable 'a'
+1565579358897	Rename type 'RandomNoise'
+1565579853792	Rename method 'isDied'
+1565583464984	Move compilation units
+1565583484111	Rename package 'render'
+1565583492711	Copy compilation units
+1565583505116	Delete elements
+1565583511670	Delete elements
+1565607749924	Rename method 'isInBreedingRange'
+1565608654585	Rename local variable 'size'
+1565610353549	Copy compilation units
+1565757761968	Copy compilation units
+1565758069324	Delete element
+1565760583459	Rename type 'Robot'
+1565762481275	Rename type 'Path'
+1565826695094	Rename field 'line'
+1565846513466	Copy compilation unit
+1565846522878	Delete element
+1565846531058	Copy compilation units
+1565846534457	Delete element
+1565847732339	Rename local variable 'currentSeg'
+1565864082160	Rename package 'Bezier'
+1565864286814	Copy compilation units
+1565882950704	Copy package
+1565937626022	Copy compilation units
+1565937707857	Delete element
+1565937909659	Delete element
+1565941835694	Delete element
+1565984605787	Delete element

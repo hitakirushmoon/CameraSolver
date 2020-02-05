@@ -1,0 +1,99 @@
+package gart.vision;
+
+import java.util.Arrays;
+
+import gart.math.Coordinates2D;
+import gart.math.Coordinates3D;
+
+public class CameraSolver {
+	double A[];
+	double[][] squared = new double[4][4];
+
+	public CameraSolver(Coordinates3D[] irlPoints) {
+		Coordinates3D[] p = irlPoints;
+		A = getAreaList(irlPoints);
+//		System.out.println(Arrays.toString(A));
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (i == j)
+					continue;
+				squared[i][j] = p[i].squaredDistanceTo(p[j]);
+			}
+		}
+	}
+
+	public void solve(Coordinates2D[] q) {
+		double[] B = getAreaList(q);
+		double[][] C = new double[4][4];
+
+		double[][] squaredH = new double[4][4];
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (i == j)
+					continue;
+				C[i][j] = B[j] / B[i] * A[i] / A[j];
+				squaredH[i][j] = Math.pow((q[i].x - C[i][j] * q[j].x), 2) + Math.pow((q[i].y - C[i][j] * q[j].y), 2);
+			}
+		}
+
+		double[] F = getFocalList(C, squaredH);
+		double f = 0;
+		for (int i = 0; i < F.length; i++) {
+			f += F[i] / F.length;
+		}
+		
+		System.out.println();
+		System.out.println(f );
+		double[][] R = new double[4][4];
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (i == j)
+					continue;
+				R[i][j] = Math.sqrt(squaredH[i][j] + f * f * (1 - C[i][j]) * (1 - C[i][j]));
+			}
+		}
+
+		Coordinates3D P1 = new Coordinates3D(-q[0].x * Math.sqrt(squared[0][1]) / R[0][1],
+				-q[0].y * Math.sqrt(squared[0][1]) / R[0][1], f * Math.sqrt(squared[0][1]) / R[0][1]);
+		Coordinates3D P2 = new Coordinates3D(-q[1].x * Math.sqrt(squared[1][2]) / R[1][2],
+				-q[1].y * Math.sqrt(squared[1][2]) / R[1][2], f * Math.sqrt(squared[1][2]) / R[1][2]);
+		Coordinates3D P3 = new Coordinates3D(-q[2].x * Math.sqrt(squared[2][3]) / R[2][3],
+				-q[2].y * Math.sqrt(squared[2][3]) / R[2][3], f * Math.sqrt(squared[2][3]) / R[2][3]);
+		Coordinates3D P4 = new Coordinates3D(-q[3].x * Math.sqrt(squared[3][0]) / R[3][0],
+				-q[3].y * Math.sqrt(squared[3][0]) / R[3][0], f * Math.sqrt(squared[3][0]) / R[3][0]);
+		System.out.println(P1);
+		System.out.println(P2);
+		System.out.println(P3);
+		System.out.println(P4);
+	}
+
+	public double[] getFocalList(double[][] C, double[][] H) {
+		double[] f = new double[] { getFocal(C, H, 0, 1, 2), getFocal(C, H, 0, 1, 3), getFocal(C, H, 0, 2, 3),
+				getFocal(C, H, 1, 0, 2), getFocal(C, H, 1, 0, 3), getFocal(C, H, 1, 2, 3), getFocal(C, H, 2, 0, 1),
+				getFocal(C, H, 2, 0, 3), getFocal(C, H, 2, 1, 3), getFocal(C, H, 3, 0, 1), getFocal(C, H, 3, 0, 2),
+				getFocal(C, H, 3, 1, 2) };
+		return f;
+	}
+
+	public double getFocal(double[][] C, double[][] H, int i, int j, int k) {
+		System.out.println("s: "
+				+ (squared[i][j] * (1 - C[i][k]) * (1 - C[i][k]) - squared[i][k] * (1 - C[i][j]) * (1 - C[i][j])));
+		System.out.println("H: " + (squared[i][k] * H[i][j] - squared[i][j] * H[i][k]));
+	
+		return Math.sqrt((squared[i][k] * H[i][j] - squared[i][j] * H[i][k])
+				/ (squared[i][j] * (1 - C[i][k]) * (1 - C[i][k]) - squared[i][k] * (1 - C[i][j]) * (1 - C[i][j])));
+	}
+
+	public static double[] getAreaList(Coordinates3D[] p) {
+		return new double[] { triangleArea(1, 2, 3, p), triangleArea(0, 2, 3, p), triangleArea(0, 1, 3, p),
+				triangleArea(0, 1, 2, p) };
+	}
+
+	public static double triangleArea(int a, int b, int c, Coordinates3D[] p) {
+		return triangleArea(p[a], p[b], p[c]);
+	}
+
+	public static double triangleArea(Coordinates3D a, Coordinates3D b, Coordinates3D c) {
+		return Math.abs(Coordinates3D.crossProduct(c.getVectorTo(a), c.getVectorTo(b)));
+	}
+}

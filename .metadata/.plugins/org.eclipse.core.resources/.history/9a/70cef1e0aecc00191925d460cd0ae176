@@ -1,0 +1,45 @@
+package gart;
+
+import gart.math.SquareMatrix;
+import gart.math.Vector;
+import gart.rrt.State;
+import gart.vision.VisionUtils;
+
+public class Main {
+
+	public static void main(String[] args) {
+//		long start = System.nanoTime();
+//		System.out.println(VisionUtils.solveCamera(-43, 1603, -354, 1492, -395, -602, 85, -638, 7.5, 162, -22.5, 162,
+//				-22.5, 0, 22.5, 0, 2900));
+//		System.out.println(System.nanoTime() - start);
+//	
+		System.out.println(getOptimalTime());
+	}
+
+	static double getOptimalTime() {
+		double guess = 100;
+		double lastGuess = 0;
+		for (int i = 0; i < 10000; i++) {
+			double y = getCostDerivative(guess);
+			double last_y = getCostDerivative(lastGuess);
+			if (guess < 0) {
+				return getCost(guess) > getCost(lastGuess) ? lastGuess : guess;
+			} else if (y < 1E-8) {
+				return guess;
+			}
+			double newGuess = (lastGuess * y - guess * last_y) / (y - last_y);
+			lastGuess = guess;
+			guess = newGuess;
+
+		}
+		return guess;
+	}
+
+	static double getCostDerivative(double guess) {
+		return guess * guess * 3 - guess * 20;
+	}
+
+	static double getCost(double guess) {
+		return guess * guess * guess - 10 * guess * guess;
+	}
+}

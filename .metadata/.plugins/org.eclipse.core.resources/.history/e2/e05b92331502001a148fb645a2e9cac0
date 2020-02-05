@@ -1,0 +1,116 @@
+package kata;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+public class Family {
+	List<Person> people = new LinkedList<Person>();
+
+	public boolean male(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				if (person.gender == 0) {
+					person.gender = 1;
+				}
+				return person.gender == 1;
+			}
+		}
+		Person p = new Person(name);
+		p.gender = 1;
+		return true;
+	}
+
+	public boolean isMale(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				return person.gender == 1;
+			}
+		}
+		return false;
+	}
+
+	public boolean female(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				if (person.gender == 0) {
+					person.gender = 2;
+				}
+				return person.gender == 2;
+			}
+		}
+		Person p = new Person(name);
+		p.gender = 2;
+		return true;
+	}
+
+	public boolean isFemale(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				return person.gender == 2;
+			}
+		}
+		return false;
+	}
+
+	public boolean setParentOf(String childName, String parentName) {
+		
+		return true;
+	}
+
+	public List<String> getParentsOf(String name) {
+		List<String> parents = new LinkedList<String>();
+		for (Person person : people) {
+			if (person.equals(name)) {
+				person.parents.forEach(x -> parents.add(x.name));
+				Collections.sort(parents);
+				break;
+			}
+		}
+		return parents;
+	}
+
+	public List<String> getChildrenOf(String name) {
+		List<String> children = new LinkedList<String>();
+		for (Person person : people) {
+			if (person.equals(name)) {
+				person.children.forEach(x -> children.add(x.name));
+				Collections.sort(children);
+				break;
+			}
+		}
+		return children;
+	}
+}
+
+class Person {
+	String name;
+	int gender;
+	List<Person> parents = new LinkedList<Person>();
+	List<Person> children = new LinkedList<Person>();
+
+	public Person(String name) {
+		this.name = name;
+	}
+
+
+	public boolean equals(Object arg) {
+		if (arg instanceof Person) {
+			Person person = (Person) arg;
+			return person.name.equals(name);
+		} else if (arg instanceof String) {
+			String name = (String) arg;
+			return name.equals(this.name);
+		}
+		return false;
+	}
+	
+	public boolean canBeGrandparentsOfThis(String name) {
+		for(Person parent : parents) {
+			if(!parent.canBeGrandparentsOfThis(name)) {
+				return false;
+			}
+		}
+		return true;
+	}
+}

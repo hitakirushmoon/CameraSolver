@@ -1,0 +1,157 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
+public class BreakPieces {
+	public static void main(String[] args) {
+		String shape = String.join("\n", new String[] { "+------------+", "|            |", "|            |",
+				"|            |", "+------+-----+", "|      |     |", "|      |     |", "+------+-----+" });
+		process(shape);
+	}
+
+	public static String[] process(String shape) {
+		String[] lmao = shape.split("\n");
+		Queue<Node> nodes = new PriorityQueue<Node>();
+		Node[][] map = new Node[lmao.length][lmao[0].length()];
+		for (int i = 0; i < lmao.length; i++) {
+			for (int j = 0; j < lmao[i].length(); j++) {
+				if (lmao[i].charAt(j) == '+') {
+					map[i][j] = new Node(i, j);
+					if (j < lmao[i].length() - 1)
+						map[i][j].hasThisNeighbor[0] = lmao[i].charAt(j + 1) == '-';
+					if (i < lmao.length - 1)
+						map[i][j].hasThisNeighbor[1] = lmao[i + 1].charAt(j) == '|';
+					if (j > 0)
+						map[i][j].hasThisNeighbor[2] = lmao[i].charAt(j - 1) == '-';
+					if (i > 0)
+						map[i][j].hasThisNeighbor[3] = lmao[i - 1].charAt(j) == '|';
+				}
+			}
+		}
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[i].length; j++) {
+				if (map[i][j] != null) {
+					if (map[i][j].hasThisNeighbor[0]) {
+						for (int k = 1; map[i][j].neighbors[0] == null; k++) {
+							if (map[i][j + k] != null) {
+								map[i][j].neighbors[0] = map[i][j + k];
+								map[i][j].costs[0] = k;
+								map[i][j + k].costs[2] = k;
+								map[i][j + k].neighbors[2] = map[i][j];
+							}
+						}
+					}
+					if (map[i][j].hasThisNeighbor[1]) {
+						for (int k = 1; map[i][j].neighbors[1] == null; k++) {
+							if (map[i + k][j] != null) {
+								map[i][j].neighbors[1] = map[i + k][j];
+								map[i][j].costs[1] = k;
+								map[i + k][j].costs[3] = k;
+								map[i + k][j].neighbors[3] = map[i][j];
+							}
+						}
+					}
+					nodes.add(map[i][j]);
+				}
+			}
+		}
+		return lmao;
+	}
+
+	void dijkstra(Queue<Node> graph) {
+		Node current = graph.poll();
+		current.previous = null;
+		Node start = null, end = null;
+		for (int i = 0; i< 4; i++) {
+			if (!current.hasThisNeighbor[i])
+				continue;
+			if (start == null) {
+				start = current.neighbors[i];
+				current.neighbors[i] = null;
+				start.neighbors[(i + 2) % 4] = null;
+				start.hasThisNeighbor[(i + 2) % 4] = false;
+				start.costs[(i + 2) % 4] = 0;
+				start.previous = current;
+			} else if (end == null) {
+				end = current.neighbors[i];
+				current.neighbors[i] = null;
+				end.neighbors[(i + 2) % 4] = null;
+				end.hasThisNeighbor[(i + 2) % 4] = false;
+				end.costs[(i + 2) % 4] = 0;
+				break;
+			}
+		}
+		Queue<Node> Q = new PriorityQueue<Node>((Node a, Node b) -> a.distance - b.distance);
+		start.distance = 0;
+		for (Node node : graph) {
+			node.distance = Integer.MAX_VALUE;
+			node.previous = null;
+			Q.add(node);
+		}
+		while (!Q.isEmpty()) {
+			Node u = Q.peek();
+			for (int i = 0; i < 4; i++) {
+				if (!u.hasThisNeighbor[i])
+					continue;
+				Node v = u.neighbors[i];
+
+				int alt = u.distance + u.costs[i];
+				if (alt < v.distance) {
+					v.distance = alt;
+					v.previous = u;
+					if (v == end) {
+
+					}
+				}
+			}
+		}
+	}
+
+	LinkedList<Node> reconstructPath(Queue<Node> graph, Node end) {
+		LinkedList<Node> path = new LinkedList<Node>();
+		while(end != null) {
+			path.add(end);
+			end = end.previous;
+		}
+		return path;
+	}
+}
+
+class Node implements Comparable<Node> {
+	Node[] neighbors = new Node[4];
+	int[] costs = new int[4];
+	boolean[] hasThisNeighbor = new boolean[4];
+	int x, y;
+	int distance;
+	Node previous;
+
+	public Node(int x, int y) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
+
+	public String toString() {
+		return "x: " + x + "; y: " + y + " " + Arrays.toString(costs);
+	}
+
+	@Override
+	public int compareTo(Node o) {
+		int diff = 0;
+		for (int i = 0; i < 4; i++) {
+			if (hasThisNeighbor[i])
+				diff++;
+			if (o.hasThisNeighbor[i])
+				diff--;
+		}
+		if (diff == 0) {
+			for (int i = 0; i < 4; i++) {
+				diff += costs[i] - o.costs[i];
+			}
+		}
+		return diff;
+	}
+}

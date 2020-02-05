@@ -1,0 +1,38 @@
+package pid;
+
+import java.awt.Graphics2D;
+
+public class Controller implements Renderable {
+	Coordinates target, current;
+	Coordinates P, I, D;
+	Coordinates culmativeError;
+	double kP, kI, kD;
+
+	public Controller() {
+		culmativeError = new Coordinates(0, 0);
+	}
+
+	public void setTarget(Coordinates target) {
+		this.target = target;
+	}
+
+	public void setCurrent(Coordinates current) {
+		this.current = current;
+	}
+
+	public void update() {
+		Coordinates e = current.getVectorTo(target);
+		P = e.clone().scale(kP);
+		I = culmativeError.scale(-kI);
+	}
+
+	@Override
+	public void render(Graphics2D g) {
+		if (target != null && current != null) {
+			target.render(g);
+			current.render(g);
+			new Segment(target, current).render(g);
+		}
+	}
+
+}

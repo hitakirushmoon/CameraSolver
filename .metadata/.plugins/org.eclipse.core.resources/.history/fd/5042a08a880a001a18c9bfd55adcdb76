@@ -1,0 +1,35 @@
+package kata;
+
+import java.math.BigInteger;
+import java.util.stream.IntStream;
+
+public class BooleanOrder {
+	boolean[] operands;
+	char[] operators;
+	int[][] memory;
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = new boolean[operands.length()];
+		IntStream.range(0, this.operands.length).forEach(i -> this.operands[i] = operands.charAt(i) == 't');
+		this.operators = operators.toCharArray();
+		for (int i = 0; i < operands.length(); i++) {
+			memory[i] = new int[operands.length() - i];
+		}
+	}
+
+	public BigInteger solve() {
+		return t(0, operands.length);
+	}
+
+	public BigInteger t(int i, int j) {
+		if (j - i == 1) {
+			return operands[i] ? BigInteger.ONE : BigInteger.ZERO;
+		}
+		BigInteger sum = BigInteger.ZERO;
+		for (int k = i; k < j; k++) {
+			if (operators[k] == '&') {
+				sum.add(val)
+			}
+		}
+	}
+}

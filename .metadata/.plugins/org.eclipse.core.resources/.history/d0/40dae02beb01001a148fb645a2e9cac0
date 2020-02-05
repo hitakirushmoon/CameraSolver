@@ -1,0 +1,12 @@
+package kata;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Line {
+   public static String WhoIsNext(String[] names, int n)
+     {
+	   Queue<String> theLongWay = new LinkedList<String>();
+	   
+     }
+}

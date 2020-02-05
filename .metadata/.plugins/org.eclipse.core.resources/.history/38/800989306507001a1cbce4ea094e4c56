@@ -1,0 +1,36 @@
+package kata;
+
+import java.util.*;
+
+public class MazeSolver {
+	Cell[][][] fullMaze;
+
+	public MazeSolver(int[][] maze) {
+		fullMaze = new Cell[4][maze.length][];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[i].length; j++) {
+
+				fullMaze[0][i][j] = new Cell(maze[i][j]);
+				for (int k = 1; k < fullMaze.length; k++) {
+
+				}
+			}
+		}
+	}
+
+	public List<String> solve() {
+		// Your code here too!
+		return Arrays.asList("");
+	}
+}
+
+class Cell {
+	boolean leftWall;
+	boolean rightWall;
+	boolean bottomWall;
+	boolean topWall;
+
+	Cell(int walls) {
+
+	}
+}

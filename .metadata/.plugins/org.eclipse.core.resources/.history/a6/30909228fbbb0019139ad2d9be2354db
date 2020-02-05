@@ -1,0 +1,57 @@
+package simulation;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
+
+public class World {
+	double radius;
+	int generation = 0;
+	int time = 0;
+	final int timeLimit;
+	final double foodCount;
+	final int intialCreatureCount;
+	final Queue<Creature> creatures = new LinkedList<Creature>();
+	final Queue<Place> food = new LinkedList<Place>();
+	final Random rand = new Random();
+
+	public World(double radius, int timeLimit, double foodCount, int intialCreatureCount) {
+		this.radius = radius;
+		this.timeLimit = timeLimit;
+		this.foodCount = foodCount;
+		this.intialCreatureCount = intialCreatureCount;
+	}
+
+	void update() {
+		Queue<Creature> creaturesClone = new LinkedList<Creature>();
+		for (int i = 0; i < creatures.size(); i++) {
+			Creature creature = creatures.poll();
+			creaturesClone.add(creature.clone());
+			creatures.add(creature);
+		}
+		for (int i = 0; i < creaturesClone.size(); i++) {
+			Creature creature = creaturesClone.poll();
+			creaturesClone.add(creature.clone());
+			creatures.add(creature);
+		}	
+	}
+
+	void reset() {
+		time = 0;
+		generation++;
+		for (int i = 0; i < creatures.size(); i++) {
+			Creature creature = creatures.poll();
+			double angle = Math.PI * 2 * (double) i / creatures.size();
+			creature.position.posX = radius * Math.cos(angle);
+			creature.position.posY = radius * Math.sin(angle);
+			creature.reset();
+			creatures.add(creature);
+		}
+		for (int i = 0; i < foodCount - food.size(); i++) {
+			double r = rand.nextDouble() * radius * 2 / 3;
+			double phi = rand.nextDouble() * 2 * Math.PI;
+			food.add(new Place(r * Math.cos(phi), r * Math.sin(phi)));
+		}
+	}
+
+}

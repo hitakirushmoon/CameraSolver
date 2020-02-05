@@ -1,0 +1,5 @@
+package pid;
+
+public class Controller {
+	Coordinates targetLocation, currentLocation;
+}

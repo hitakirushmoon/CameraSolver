@@ -1,0 +1,32 @@
+package kata;
+
+import java.math.BigInteger;
+import java.util.stream.IntStream;
+
+public class BooleanOrder {
+	boolean[] operands;
+	char[] operators;
+	BigInteger[][] t;
+	BigInteger[][] f;
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = new boolean[operands.length()];
+		IntStream.range(0, this.operands.length).forEach(i -> this.operands[i] = operands.charAt(i) == 't');
+		this.operators = operators.toCharArray();
+
+		for (int i = 0; i < operands.length(); i++) {
+			if (this.operands[i]) {
+				t[i][i] = BigInteger.ONE;
+				f[i][i] = BigInteger.ZERO;
+			} else {
+				f[i][i] = BigInteger.ONE;
+				t[i][i] = BigInteger.ZERO;
+			}
+		}
+	}
+
+	public BigInteger solve() {
+		return BigInteger.ZERO;
+//		return t(0, operators.length);
+	}
+}

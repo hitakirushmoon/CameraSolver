@@ -1,0 +1,200 @@
+package robot;
+
+import java.awt.Graphics2D;
+
+public interface Renderable {
+	public void render(Graphics2D g);
+}
+
+class Coordinates implements Renderable {
+	double x, y;
+	Coordinates next;
+
+	public Coordinates(double x, double y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	@Override
+	public void render(Graphics2D g) {
+		g.drawRect((int) x, (int) y, 1, 1);
+	}
+
+	public double size() {
+		return Math.sqrt(x * x + y * y);
+	}
+
+	public double distanceTo(Coordinates a) {
+		return Math.sqrt((a.x - x) * (a.x - x) + (a.y - y) * (a.y - y));
+	}
+
+	public static Coordinates fromRadial(double r, double phi) {
+		return new Coordinates(r * Math.cos(phi), r * Math.sin(phi));
+	}
+
+	public Coordinates add(Coordinates a) {
+		x += a.x;
+		y += a.y;
+		return this;
+	}
+
+	public static Coordinates sum(Coordinates a, Coordinates b) {
+		return new Coordinates(a.x + b.x, a.y + b.y);
+	}
+
+	public Coordinates scale(double a) {
+		x *= a;
+		y *= a;
+		return this;
+	}
+
+	public Coordinates getVectorTo(Coordinates a) {
+		return new Coordinates(a.x - x, a.y - y);
+	}
+
+	// does NOT check if a point is on a segment
+	public boolean isBetween(Coordinates a, Coordinates b) {
+		return (a.x - x) * (b.x - x) < 0 && (a.y - y) * (b.y - y) < 0;
+	}
+
+	public double direction() {
+		return Math.atan2(y, x);
+	}
+
+	public Coordinates normalize() {
+		double size = size();
+		x /= size;
+		y /= size;
+		return this;
+	}
+
+	public boolean isZeroVector() {
+		return size() < 1E-6;
+	}
+
+	@Override
+	public String toString() {
+		return " x: " + x + "; y: " + y;
+	}
+
+	public Coordinates clone() {
+		return new Coordinates(x, y);
+	}
+
+	public static Coordinates weightedAverage(Coordinates c1, Coordinates c2, double w1, double w2) {
+		return c1.clone().scale(w1).add(c2.clone().scale(w2)).scale(1 / (w1 + w2));
+	}
+}
+
+class Segment implements Renderable {
+	Coordinates start;
+	Coordinates end;
+	Segment nextSegment;
+
+	public Segment(Coordinates start, Coordinates end) {
+		this.start = start;
+		this.end = end;
+		this.start.next = end;
+	}
+
+	@Override
+	public void render(Graphics2D g) {
+		g.drawLine((int) start.x, (int) start.y, (int) end.x, (int) end.y);
+	}
+
+	public Segment clone() {
+		return new Segment(start.clone(), end.clone());
+	}
+}
+
+class Path implements Renderable {
+	Coordinates start;
+	Coordinates last;
+
+	public Path(Coordinates start) {
+		this.start = start;
+		this.last = start;
+	}
+
+	public void addCoordinates(Coordinates c) {
+		last.next = c;
+		last = c;
+	}
+
+	@Override
+	public void render(Graphics2D g) {
+		Coordinates current = start;
+		while (current != null) {
+			current.render(g);
+			current = current.next;
+		}
+	}
+
+}
+
+class Polyline implements Renderable {
+	Segment start;
+	Segment end;
+	Coordinates startingCoords;
+	int size;
+
+	public Polyline(Coordinates startingCoords) {
+		this.startingCoords = startingCoords;
+		size = 1;
+	}
+
+	public Polyline clone() {
+		Polyline p = new Polyline(startingCoords.clone());
+		Coordinates current = startingCoords.next;
+		while (current != null) {
+			p.addCoordinates(current.clone());
+			current = current.next;
+		}
+		return p;
+	}
+
+	public Polyline addCoordinates(Coordinates c) {
+		if (start == null) {
+			start = new Segment(startingCoords, c);
+			end = start;
+		} else {
+			Segment next = new Segment(end.end, c);
+			end.nextSegment = next;
+			end = next;
+		}
+		size++;
+		return this;
+	}
+
+	@Override
+	public void render(Graphics2D g) {
+		Segment current = start;
+		while (current != null) {
+			current.render(g);
+			current = current.nextSegment;
+		}
+	}
+
+	public void print() {
+		Coordinates current = startingCoords;
+		while (current != null) {
+			System.out.println(current);
+			current = current.next;
+		}
+	}
+}
+
+class Circle implements Renderable {
+	Coordinates center;
+	double radius;
+
+	public Circle(Coordinates center, double radius) {
+		this.center = center;
+		this.radius = radius;
+	}
+
+	@Override
+	public void render(Graphics2D g) {
+		g.drawOval((int) (center.x - radius), (int) (center.y - radius), (int) radius * 2, (int) radius * 2);
+	}
+}

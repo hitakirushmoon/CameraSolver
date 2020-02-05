@@ -1,0 +1,24 @@
+package kata;
+
+import java.util.*;
+
+public class MazeSolver {
+	int[][][] fullMaze;
+
+	public MazeSolver(int[][] maze) {
+		fullMaze = new int[4][maze.length][];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[i].length; j++) {
+				fullMaze[0][i][j] = maze[i][j];
+				for (int k = 1; k < fullMaze.length; k++) {
+					fullMaze[k][i][j] = (fullMaze[k - 1][i][j] >> 1) | (fullMaze[k - 1][i][j] & 1) << 3;
+				}
+			}
+		}
+	}
+
+	public List<String> solve() {
+		// Your code here too!
+		return Arrays.asList("");
+	}
+}

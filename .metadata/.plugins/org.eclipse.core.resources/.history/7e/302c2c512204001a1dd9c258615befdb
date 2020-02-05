@@ -1,0 +1,10 @@
+package kata;
+
+import java.math.BigInteger;
+
+public class Faberge {
+	public static BigInteger height(BigInteger n, BigInteger m) {
+
+		return BigInteger.ZERO; // TODO replace with your solution
+	}
+}

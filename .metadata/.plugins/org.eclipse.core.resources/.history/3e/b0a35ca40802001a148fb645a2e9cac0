@@ -1,0 +1,47 @@
+package kata;
+
+public class Dih4 {
+	public static void main(String[] args) {
+		System.out.println(ROTATE_90_CLOCKWISE.then(REFLECT_VERTICAL).index);
+		System.out.println(REFLECT_REVERSE_DIAGONAL);
+	}
+
+	static final Dih4 IDENTITY = new Dih4(0);
+	static final Dih4 ROTATE_90_ANTICLOCKWISE = new Dih4(1);
+	static final Dih4 ROTATE_180 = new Dih4(2);
+	static final Dih4 ROTATE_90_CLOCKWISE = new Dih4(3);
+	static final Dih4 REFLECT_VERTICAL = new Dih4(4);
+	static final Dih4 REFLECT_FORWARD_DIAGONAL = new Dih4(5);
+	static final Dih4 REFLECT_HORIZONTAL = new Dih4(6);
+	static final Dih4 REFLECT_REVERSE_DIAGONAL = new Dih4(7);
+	static final Dih4[] a = { IDENTITY, ROTATE_90_ANTICLOCKWISE, ROTATE_180, ROTATE_90_CLOCKWISE, REFLECT_VERTICAL,
+			REFLECT_FORWARD_DIAGONAL, REFLECT_HORIZONTAL, REFLECT_REVERSE_DIAGONAL };
+	int index;
+
+	Dih4(int index) {
+		this.index = index;
+	}
+
+	public Dih4 then(Dih4 transform) {
+		int layer1 = index / 4;
+		int layer2 = transform.index / 4;
+		int pos1 = index % 4;
+		int pos2 = transform.index % 4;
+		return a[(layer1 ^ layer2) * 4 + (pos1 + pos2) % 4];
+	}
+
+	public Dih4 inv() {
+		if (index < 4) {
+			return a[4 - index];
+		}
+		return this;
+	}
+
+	public boolean is_rotation() {
+		return index / 4 == 0;
+	}
+
+	public boolean is_reflection() {
+		return index / 4 == 1;
+	}
+}

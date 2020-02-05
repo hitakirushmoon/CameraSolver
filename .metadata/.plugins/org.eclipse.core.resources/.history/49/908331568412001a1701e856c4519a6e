@@ -1,0 +1,89 @@
+package kata;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.IntStream;
+
+public class BooleanOrder {
+	boolean[] operands;
+	char[] operators;
+	BigInteger[][] t;
+
+	public static void main(String[] args) {
+		System.out.println(new BooleanOrder("tft","^&").solve());
+	}
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = new boolean[operands.length()];
+		IntStream.range(0, this.operands.length).forEach(i -> this.operands[i] = operands.charAt(i) == 't');
+		this.operators = operators.toCharArray();
+		t = new BigInteger[operands.length()][operands.length()];
+
+		for (int i = 0; i < operands.length(); i++) {
+			if (this.operands[i]) {
+				t[i][i] = BigInteger.ONE;
+			} else {
+				t[i][i] = BigInteger.ZERO;
+			}
+		}
+	}
+
+	public BigInteger solve() {
+		for (int g = 1; g < operands.length; g++) {
+			for (int i = 0; i + g < operands.length; i++) {
+				int j = i + g;
+				t[i][j] = BigInteger.ZERO;
+				t[j][i] = BigInteger.ZERO;
+				for (int k = i; k < j; k++) {
+					BigInteger tikandtjk, ntikandntjk, ntikandtjk, tikandntjk;
+					if (i == k) {
+						if (this.operands[i]) {
+							tikandtjk = t[k + 1][j];
+							ntikandntjk = BigInteger.ZERO;
+							ntikandtjk = BigInteger.ZERO;
+							tikandntjk = t[j][k + 1];
+						} else {
+							tikandtjk = BigInteger.ZERO;
+							ntikandntjk = t[j][k + 1];
+							ntikandtjk = t[k + 1][j];
+							tikandntjk = BigInteger.ZERO;
+						}
+					}
+					if (k + 1 == j) {
+						if (this.operands[j]) {
+							tikandtjk = t[i][k];
+							ntikandntjk = BigInteger.ZERO;
+							ntikandtjk = t[k][i];
+							tikandntjk = BigInteger.ZERO;
+						} else {
+							tikandtjk = BigInteger.ZERO;
+							ntikandntjk = t[k][i];
+							ntikandtjk = BigInteger.ZERO;
+							tikandntjk = t[i][k];
+						}
+					} else {
+						tikandtjk = t[i][k].multiply(t[k + 1][j]);
+						ntikandntjk = t[k][i].multiply(t[j][k + 1]);
+						ntikandtjk = t[k + 1][j].multiply(t[k][i]);
+						tikandntjk = t[j][k + 1].multiply(t[i][k]);
+					}
+					if (operators[k] == '&') {
+						t[i][j] = t[i][j].add(tikandtjk);
+						t[j][i] = t[j][i].add(ntikandntjk).add(tikandntjk).add(ntikandtjk);
+					} else if (operators[k] == '|') {
+						t[j][i] = t[j][i].add(ntikandntjk);
+						t[i][j] = t[i][j].add(tikandtjk).add(tikandntjk).add(ntikandtjk);
+					} else {
+						t[i][j] = t[i][j].add(ntikandtjk.add(tikandntjk));
+						t[j][i] = t[j][i].add(tikandtjk.add(ntikandntjk));
+					}
+				}
+			}
+		}
+
+		return t[0][operators.length];
+	}
+
+}

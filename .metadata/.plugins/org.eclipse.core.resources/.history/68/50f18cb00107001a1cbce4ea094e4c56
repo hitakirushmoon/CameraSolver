@@ -1,0 +1,75 @@
+package kata;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+public class CakeCutter {
+	String[] slices;
+	int count;
+
+	public CakeCutter(String cake) {
+		slices = cake.split("\n");
+		count = cake.length() - cake.replace("o", "").length();
+
+	}
+
+	List<Integer> cakeSizes = new ArrayList<Integer>();
+	int[][] position;
+	int sizeOfRects;
+
+	public List<String> cut() {
+		// Coding and coding... again!
+		int m = slices.length;
+		int n = slices[0].length();
+		position = new int[count][2];
+
+		if (m * n % count != 0) {
+			return null;
+		}
+
+		sizeOfRects = m * n / count;
+		for (int i = 1; i <= Math.sqrt(sizeOfRects); i++) {
+			if (sizeOfRects % i == 0) {
+				cakeSizes.add(i);
+				if (i * i != sizeOfRects) {
+					cakeSizes.add(sizeOfRects / i);
+				}
+			}
+		}
+		int raisin = 0;
+		for (int x = 0; x < m && raisin < count; x++) {
+			for (int y = 0; y < n && raisin < count; y++) {
+				if (slices[x].charAt(y) == 'o') {
+					position[raisin][0] = x;
+					position[raisin][1] = y;
+					raisin++;
+				}
+			}
+		}
+		return null;
+	}
+
+	public void search(String[] cake, ) {
+		
+	}
+
+	public String toString(int x, int y, int w, int h) {
+		List<String> slice = new LinkedList<String>();
+		for (int i = x; i < x + h; i++) {
+			slice.add(wrap.slices[i].substring(y, y + w));
+		}
+		return String.join("\n", slice);
+	}
+
+	public static int[] getNextCorner(String[] cake) {
+		for (int x = 0; x < cake.length; x++) {
+			for (int y = 0; y < cake[x].length(); y++) {
+				if (cake[x].charAt(y) != ' ') {
+					return new int[] { x, y };
+				}
+			}
+		}
+		return null;
+	}
+}

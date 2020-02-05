@@ -1,0 +1,36 @@
+package gart;
+
+import java.util.Arrays;
+
+import gart.math.Coordinates2D;
+import gart.math.Coordinates3D;
+import gart.vision.CameraSolver;
+
+public class Main {
+
+	public static void main(String[] args) {
+		CameraSolver sol = new CameraSolver(new Coordinates3D[] { new Coordinates3D(-2.49656, -4.00311, 3),
+				new Coordinates3D(-6.04103, 3.79851, 3.15353), new Coordinates3D(-3.50876, 2.18531, 6.31682),
+				new Coordinates3D(-2.1749, -0.4506, 6.50695) });
+
+		sol.solve(new Coordinates2D[] { new Coordinates2D(297, -153), new Coordinates2D(-584, -162),
+				new Coordinates2D(-255, 123), new Coordinates2D(-31, 146) });
+//		CameraSolver.heapPermutation(new int[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+		generatePermutation(new int[] { 1, 2, 3, 4, 5, 6, 7, 8 }, 4);
+	}
+
+	public static void generatePermutation(int[] list, int k) {
+		generatePermutation(list, k, 0, new int[k]);
+	}
+
+	public static void generatePermutation(int[] list, int k, int lowbound, int[] result) {
+		if (k == 0) {
+			System.out.println(CameraSolver.heapPermutation(result));
+			return;
+		}
+		for (int i = lowbound; i < list.length - k + 1; i++) {
+			result[k - 1] = list[i];
+			generatePermutation(list, k - 1, i + 1, result);
+		}
+	}
+}

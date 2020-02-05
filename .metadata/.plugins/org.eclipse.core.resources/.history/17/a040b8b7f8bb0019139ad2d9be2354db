@@ -1,0 +1,12 @@
+package simulation;
+
+public class Place {
+	double posX, posY;
+	public Place(double posX, double posY) {
+		this.posX = posX;
+		this.posY = posY;
+	}
+	public double getDistance(Place target) {
+		return (this.posX - target.posX) * (this.posX - target.posX) + (this.posY - target.posY) * (this.posY - target.posY);
+	}
+}

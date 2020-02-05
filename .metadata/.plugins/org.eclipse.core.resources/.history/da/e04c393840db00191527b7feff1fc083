@@ -1,0 +1,20 @@
+package main;
+
+import java.util.Random;
+import java.util.TreeSet;
+
+public class Main {
+	public static void main(String[] args) {
+//		SwingUtilities.invokeLater(new Runnable(){
+//			public void run(){
+//				new MainWindow();
+//			}
+//		});
+//	}
+		Random random = new Random();
+		TreeSet list = new TreeSet();
+		while (list.size() < 43) {
+			list.add(random.nextInt(43));
+		}
+	}
+}

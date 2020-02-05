@@ -1,0 +1,149 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+
+public class SkyScrapers {
+
+	public static void main(String[] args) {
+		int[][] result = solvePuzzle(
+				new int[] { 7, 0, 0, 0, 2, 2, 3, 0, 0, 3, 0, 0, 0, 0, 3, 0, 3, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 4 });
+
+	}
+
+	static int[][] solvePuzzle(int[] clues) {
+		Solver solve = new Solver(clues);
+		solve.solve();
+		System.out.println(solve);
+		solve.printClues();
+//		System.out.println(Arrays.toString(solve.maxVisible));
+		return solve.returnAns();
+	}
+
+}
+
+class Solver {
+	int size;
+	int largestNum;
+	int[][] clues;
+	int[][] maxVisible;
+	LinkedList<Integer>[][] values;
+	boolean done[][];
+
+	public Solver(int[] clues) {
+		size = clues.length / 4;
+		largestNum = size - 1;
+		values = new LinkedList[size][size];
+		done = new boolean[size][size];
+		maxVisible = new int[4][size];
+		this.clues = new int[4][size];
+		for (int i = 0; i < size; i++) {
+			this.clues[0][i] = clues[i];
+			this.clues[1][i] = clues[i + size];
+			this.clues[2][i] = clues[3 * size - 1 - i];
+			this.clues[3][i] = clues[4 * size - 1 - i];
+		}
+		for (int row = 0; row < size; row++) {
+			for (int col = 0; col < size; col++) {
+				values[row][col] = new LinkedList<Integer>();
+				for (int num = 0; num < size; num++) {
+					if (!quickElim(row, col, num)) {
+						values[row][col].add(num);
+					}
+				}
+			}
+		}
+
+		printClues();
+	}
+
+	void solve() {
+
+	}
+
+	void debug(int row, int col, int num, int tarRow, int tarCol, int tarNum) {
+		if (row == tarRow && col == tarCol && num == tarNum) {
+			System.out.println();
+		}
+	}
+
+//	check if maximum possible clue is smaller than current clue
+	boolean quickElim(int row, int col, int num) {
+		if (row + size - num < clues[0][col] && clues[0][col] != 0) {
+			return true;
+		}
+		if (col + size - num < clues[3][row] && clues[3][row] != 0) {
+			return true;
+		}
+		if (largestNum - row + size - num < clues[2][col] && clues[2][col] != 0) {
+			return true;
+		}
+		if (largestNum - col + size - num < clues[1][row] && clues[1][row] != 0) {
+			return true;
+		}
+		return false;
+	}
+
+	int[] getClueBounds(LinkedList<Integer>[] unit, int index, int num) {
+		int min = -1, max = -1, resultMin = 0, resultMax = 0;
+
+		for (int i = 0; i < size; i++) {
+			if (i == index) {
+				if (min < num) {
+					min = num;
+					resultMax++;
+				}
+				if (max < num) {
+					max = num;
+					resultMin++;
+				}
+			} else {
+				int minPossible = unit[i].getFirst() == num ? unit[i].get(1) : unit[i].getFirst();
+				int maxPossible = unit[i].getLast() == num ? unit[i].get(unit[i].size() - 2) : unit[i].getLast();
+				if(minPossible > min) {
+					
+				}
+			}
+		}
+		return new int[] { resultMin, resultMax };
+	}
+
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		for (LinkedList<Integer>[] row : values) {
+			s.append(Arrays.toString(row)).append("\n");
+		}
+		return s.toString();
+	}
+
+	void printClues() {
+		String whiteSpace = "";
+		for (int i = 0; i < size; i++) {
+			whiteSpace += " ";
+		}
+		System.out.print(" ");
+		for (int i = 0; i < size; i++) {
+			System.out.print(clues[0][i]);
+		}
+		System.out.println(" ");
+		for (int i = 0; i < size; i++) {
+			System.out.println(clues[3][i] + whiteSpace + clues[1][i]);
+		}
+		System.out.print(" ");
+		for (int i = 0; i < size; i++) {
+			System.out.print(clues[2][i]);
+		}
+		System.out.println(" ");
+
+	}
+
+	int[][] returnAns() {
+		int[][] ans = new int[size][size];
+		for (int row = 0; row < size; row++) {
+			for (int col = 0; col < size; col++) {
+				ans[row][col] = values[row][col].peek();
+			}
+		}
+		return ans;
+	}
+}

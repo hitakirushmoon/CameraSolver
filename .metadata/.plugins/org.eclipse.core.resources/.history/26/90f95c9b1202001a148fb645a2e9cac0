@@ -1,0 +1,77 @@
+package kata;
+
+import java.util.LinkedList;
+import java.util.List;
+
+public class Family {
+	List<Person> people = new LinkedList<Person>();
+
+	public boolean male(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				return person.gender == 1;
+			}
+		}
+
+		return true;
+	}
+
+	public boolean isMale(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				return person.gender == 1;
+			}
+		}
+		return false;
+	}
+
+	public boolean female(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				return person.gender == 2;
+			}
+		}
+		return true;
+	}
+
+	public boolean isFemale(String name) {
+		return false;
+	}
+
+	public boolean setParentOf(String childName, String parentName) {
+		return true;
+	}
+
+	public List<String> getParentsOf(String name) {
+		return new LinkedList<String>();
+	}
+
+	public List<String> getChildrenOf(String name) {
+		return new LinkedList<String>();
+	}
+}
+
+class Person {
+	String name;
+	int gender;
+	Person father, mother;
+
+	public Person(String name) {
+		this.name = name;
+	}
+
+//
+//	public boolean equals(Object arg) {
+//		if (arg instanceof Person) {
+//			Person person = (Person) arg;
+//			return person.name.equals(name);
+//		} else if (arg instanceof String) {
+//			String name = (String) arg;
+//			return name.equals(this.name);
+//		}
+//		return false;
+//	}
+	public boolean equals(String name) {
+		return name.equals(this.name);
+	}
+}

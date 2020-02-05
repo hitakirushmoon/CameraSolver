@@ -1,0 +1,111 @@
+package kata;
+
+import java.util.Random;
+
+public class Triangle {
+	public static void main(String[] args) {
+		StringBuilder test = new StringBuilder();
+		Random r = new Random();
+		for (int i = 0; i < Math.pow(3, 18); i++) {
+			test.append(toChar(r.nextInt(3)));
+		}
+		System.out.println("done!");
+		long time = System.nanoTime();
+		System.out.println(triangle(test.toString()));
+		System.out.println((System.nanoTime() - time) / 1E9);
+//		System.out.println(RGB.triangle(test.toString()));
+	}
+
+	/**
+	 * Finds the last color quickly by exploiting an observed property of the
+	 * triangles: a vertex on the nth row s.t. n = 3^p for integer p >= 0, counting
+	 * rows from zero, is colored based on its top-left and top-right vertices on
+	 * the top row.
+	 *
+	 * Time complexity:
+	 *
+	 * The recursive operation reduces the problem size by at least 1/3 (reduces row
+	 * length by at least 3^(n-1)/3^n).
+	 *
+	 * Each recursive step runs in O(newRow.length) time. The sum of these is n
+	 * times a geometric series, which is n.
+	 *
+	 * This means the algorithm runs in O(n) time.
+	 */
+	public static char triangle(String row) {
+		final int result = triangle(row.chars().map(c -> colorToNumber(c)).toArray());
+		return numberToColor(result);
+	}
+
+	private static int triangle(final int[] row) {
+		// Let n be the index of the last row of the inverted triangle, counting from 0.
+		final int n = row.length - 1;
+		if (n == 0) {
+			return row[0];
+		}
+		// Power of three row indices (1, 3, 9, ...) have bottom vertices only dependent
+		// on their top-left and top-right
+		// vertices on the first row. This was found by observation.
+		// Find the highest power of 3 less than or equal to n.
+		int p = 1;
+		for (; p * 3 <= n; p *= 3)
+			;
+		final int[] newRow = new int[n - p + 1];
+		for (int i = 0; i < newRow.length; i++) {
+			newRow[i] = (2 * (row[i] + row[n - i])) % 3;
+		}
+		return triangle(newRow);
+	}
+
+	private static int colorToNumber(int codePoint) {
+		switch (codePoint) {
+		case (int) 'R':
+			return 0;
+		case (int) 'G':
+			return 1;
+		case (int) 'B':
+			return 2;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+
+	private static char numberToColor(int number) {
+		switch (number) {
+		case 0:
+			return 'R';
+		case 1:
+			return 'G';
+		case 2:
+			return 'B';
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static int toInt(char rgb) {
+		switch (rgb) {
+		case 'R':
+			return 0;
+		case 'G':
+			return 1;
+		case 'B':
+			return -1;
+		default:
+			return 0;
+		}
+	}
+
+	public static char toChar(int rgb) {
+		switch ((rgb % 3 + 3) % 3) {
+		case 0:
+			return 'R';
+		case 1:
+			return 'G';
+		case 2:
+			return 'B';
+		default:
+			return ' ';
+		}
+	}
+}

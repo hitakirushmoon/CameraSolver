@@ -1,0 +1,65 @@
+package main;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+import interfaces.Renderable;
+import interfaces.Updatable;
+
+public class MainPanel extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1267434478501521763L;
+	List<Updatable> updatables = new LinkedList<Updatable>();
+	List<Renderable> renderables = new LinkedList<Renderable>();
+	public List<Updatable> getUpdatables() {
+		return updatables;
+	}
+
+	public List<Renderable> getRenderables() {
+		return renderables;
+	}
+
+	double frame = System.nanoTime();
+	Queue<Integer> frames = new LinkedBlockingDeque<Integer>(100);
+//	public double scale = 1, x = MainWindow.WIDTH / 2, y = MainWindow.HEIGHT / 2;
+	private Timer timer = new Timer(16, e -> {
+		update();
+		repaint();
+	});
+	
+	public MainPanel() {
+		timer.start();
+	}
+
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setColor(Color.BLACK);
+		g2.fillRect(0, 0, MainWindow.WIDTH, MainWindow.HEIGHT);
+		g2.setColor(Color.WHITE);
+		for(Renderable renderable : renderables) {
+			renderable.render(g2);
+		}
+		// 1000000000
+		if(frames)
+		g2.drawString("fps: " + (System.nanoTime() - frame) / 1000000000, 100, 200);
+		frame = System.nanoTime();
+		
+	}
+
+	public void update() {
+		for(Updatable updatable : updatables) {
+			updatable.update();
+		}
+	}
+}

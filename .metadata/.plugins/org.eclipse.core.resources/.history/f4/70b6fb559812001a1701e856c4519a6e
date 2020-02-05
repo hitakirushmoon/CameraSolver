@@ -1,0 +1,125 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
+public class BooleanOrder {
+	boolean[] operands;
+	char[] operators;
+	long[][] t;
+
+	public static void main(String[] args) {
+		System.out.println(new BooleanOrder("ttftfftf", "|&^&&||").solve());
+	}
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = new boolean[operands.length()];
+
+		IntStream.range(0, this.operands.length).forEach(i -> this.operands[i] = operands.charAt(i) == 't');
+		this.operators = operators.toCharArray();
+		t = new long[operands.length()][operands.length()];
+		for (int i = 0; i < operands.length(); i++) {
+			if (this.operands[i]) {
+				t[i][i] = 1;
+			}
+		}
+	}
+
+	public long solve() {
+		for (int g = 1; g < operands.length; g++) {
+			for (int i = 0; i + g < operands.length; i++) {
+				int j = i + g;
+				for (int k = i; k < j; k++) {
+					long tik, fik, tkj, fkj;
+					if (k == i) {
+						tik = t[i][i];
+						fik = 1 - t[i][i];
+					} else {
+						tik = t[i][k];
+						fik = t[k][i];
+					}
+					if (j == k + 1) {
+						tkj = t[j][j];
+						fkj = 1 - t[j][j];
+					} else {
+						tkj = t[k + 1][j];
+						fkj = t[j][k + 1];
+					}
+					switch (operators[k]) {
+					// 0
+					case 'T':
+						t[i][j] = (tik + fik) * (tkj + fkj);
+						t[j][i] = 0;
+						break;
+					// 4
+					case 'F':
+						t[j][i] = (tik + fik) * (tkj + fkj);
+						t[i][j] = 0;
+						break;
+					//
+					case '&':
+						t[i][j] += tik * tkj;
+						t[j][i] += fik * fkj + fik * tkj + tik * fkj;
+						break;
+					case '|':
+						t[i][j] += tik * tkj + fik * tkj + tik * fkj;
+						t[j][i] += fik * fkj;
+						break;
+					case '$':
+						t[i][j] += fik * fkj + fik * tkj + tik * fkj;
+						t[j][i] += tik * tkj;
+						break;
+					case '-':
+						t[i][j] += fik * fkj;
+						t[j][i] += tik * tkj + fik * tkj + tik * fkj;
+						break;
+					case '>':
+						t[i][j] += tik * tkj + fik * tkj + fik * fkj;
+						t[j][i] += tik * fkj;
+						break;
+					case '<':
+						t[i][j] += tik * tkj + tik * fkj + fik * fkj;
+						t[j][i] += fik * tkj;
+						break;
+					// 2
+					case ']':
+						t[i][j] += tik * (tkj + fkj);
+						t[j][i] += fik * (fkj + tkj);
+						break;
+					case ')':
+						t[i][j] += fik * (tkj + fkj);
+						t[j][i] += tik * (fkj + tkj);
+						break;
+					case '[':
+						t[i][j] += tkj * (tik + fik);
+						t[j][i] += fkj * (fik + tik);
+						break;
+					case '(':
+						t[i][j] += fkj * (tik + fik);
+						t[j][i] += tkj * (fik + tik);
+						break;
+					case '^':
+						t[i][j] += fik * tkj + tik * fkj;
+						t[j][i] += fik * fkj + tik * tkj;
+						break;
+					case '~':
+						t[i][j] += fik * fkj + tik * tkj;
+						t[j][i] += fik * tkj + tik * fkj;
+						break;
+
+					}
+				}
+			}
+		}
+		for (long[] a : t) {
+			System.out.println(Arrays.toString(a));
+		}
+//		System.out.println();
+//		for (long[] a : f) {
+//			System.out.println(Arrays.toString(a));
+//		}
+
+		return t[0][operators.length];
+	}
+
+}

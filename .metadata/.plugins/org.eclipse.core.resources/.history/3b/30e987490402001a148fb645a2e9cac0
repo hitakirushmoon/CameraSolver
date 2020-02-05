@@ -1,0 +1,16 @@
+package kata;
+public class Dih4 {
+  static final Dih4 ROTATE_90_ANTICLOCKWISE = ;
+  static final Dih4[] = {}
+  int index;
+  Dih4(int index){
+    this.index = index;
+  }
+  public Dih4 then(Dih4 transform){
+  
+  }
+  public Dih4 inv(){
+  
+  }
+  
+}

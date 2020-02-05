@@ -1,0 +1,348 @@
+package kata;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
+public class CakeCutter {
+
+	String cake;
+
+	public static void main(String[] args) {
+		String cake = "......o................................................................................o..\n"
+				+ "..........................................................................................\n"
+				+ "..........................................................................................\n"
+				+ ".............................o........o...................................................\n"
+				+ ".........................................................o................................\n"
+				+ "o......o.........................................................o....................o...\n"
+				+ "..........................................................................................\n"
+				+ "..........................................................................................\n"
+				+ "..........................................................................................";
+//		cake = String.join("\n", Arrays.asList(".o......", "......o.", "....o...", "..o....."));
+//		cake = ".o\no.";
+		System.out.println(new CakeCutter(cake).cut());
+	}
+
+	public CakeCutter(String cake) {
+		this.cake = cake;
+	}
+
+	Comparator<List<Rectangle>> lmao = new Comparator<List<Rectangle>>() {
+		@Override
+		public int compare(List<Rectangle> o1, List<Rectangle> o2) {
+			if (o1.size() != o2.size()) {
+				return o1.size() - o2.size();
+			}
+			for (int i = 0; i < o1.size(); i++) {
+				Rectangle r1 = o1.get(i);
+				Rectangle r2 = o2.get(i);
+				if (r1.w - r2.w != 0) {
+					return r1.w - r2.w;
+				}
+			}
+			return 0;
+		}
+	};
+	List<Integer> cakeSizes = new ArrayList<Integer>();
+	String[] slices;
+	int[][] position;
+	int sizeOfRects;
+
+	public List<String> cut() {
+		slices = cake.split("\n");
+		int m = slices.length;
+		int n = slices[0].length();
+		int count = cake.length() - cake.replace("o", "").length();
+		position = new int[count][2];
+
+		if (m * n % count != 0) {
+			return null;
+		}
+
+		sizeOfRects = m * n / count;
+		for (int i = 1; i <= Math.sqrt(sizeOfRects); i++) {
+			if (sizeOfRects % i == 0) {
+				cakeSizes.add(i);
+				if (i * i != sizeOfRects) {
+					cakeSizes.add(sizeOfRects / i);
+				}
+			}
+		}
+		boolean[][] matrix = new boolean[m * n][m * n * cakeSizes.size()];
+		int raisin = 0;
+		for (int x = 0; x < m && raisin < count; x++) {
+			for (int y = 0; y < n && raisin < count; y++) {
+				if (slices[x].charAt(y) == 'o') {
+					position[raisin][0] = x;
+					position[raisin][1] = y;
+					raisin++;
+				}
+			}
+		}
+		for (int ind = 0; ind < count; ind++) {
+			int factor = 0;
+			int x = position[ind][0];
+			int y = position[ind][1];
+			for (Integer i : cakeSizes) {
+				int w = i;
+				int h = sizeOfRects / i;
+				for (int xShift = 0; xShift < w; xShift++) {
+					if (x - xShift < 0 || x - xShift + w > m) {
+						continue;
+					}
+					yLoop: for (int yShift = 0; yShift < h; yShift++) {
+						if (y - yShift < 0 || y - yShift + h > n) {
+							continue;
+						}
+						for (int index = 0; index < count; index++) {
+							if (index == ind)
+								continue;
+							int x0 = position[index][0];
+							int y0 = position[index][1];
+
+							if ((y0 - (y - yShift)) * (y0 - (y - yShift + h)) < 0
+									&& (x0 - (x - xShift)) * (x0 - (x - xShift + w)) < 0) {
+								continue yLoop;
+							}
+
+						}
+						// raisin 0 -> count, factor 0 -> cakeSizes.size(), xShift 0 -> w, yShift 0 -> h
+						int index = yShift + h * (xShift + w * (factor + cakeSizes.size() * ind));
+
+						for (int xFill = 0; xFill < w; xFill++) {
+							for (int yFill = 0; yFill < h; yFill++) {
+								matrix[(x - xShift + xFill) * n + y - yShift + yFill][index] = true;
+							}
+						}
+					}
+				}
+				factor++;
+			}
+		}
+
+		DancingLinks solver = new DancingLinks(matrix, this);
+		solver.search();
+		List<String> ret = new LinkedList<String>();
+		if (solver.solutions.isEmpty()) {
+			return ret;
+		}
+		solver.solutions.forEach(x -> ret.add(x.toString()));
+
+		return ret;
+	}
+}
+
+class DancingLinks {
+	Node header = new Node(-1, -1);
+	int rowNum, colNum;
+	CakeCutter wrap;
+
+	public DancingLinks(boolean[][] problem, CakeCutter wrap) {
+		this.wrap = wrap;
+		Node current = header;
+		header.column = header;
+		colNum = problem.length;
+		rowNum = problem[0].length;
+		int count = 0;
+		for (int i = 0; i < colNum; i++) {
+			current.right = new Node(i, -1);
+			current.right.left = current;
+			current = current.right;
+			current.column = current;
+
+		}
+		current.right = header;
+		header.left = current;
+		current = header;
+		Node[][] matrix = new Node[colNum][rowNum];
+		for (int i = 0; i < colNum; i++) {
+			for (int j = 0; j < rowNum; j++) {
+				if (problem[i][j]) {
+					matrix[i][j] = new Node(i, j);
+					count++;
+				}
+			}
+		}
+		System.out.println(count);
+		for (int i = 0; i < colNum; i++) {
+			current = current.right;
+			Node last = current;
+			for (int j = 0; j < rowNum; j++) {
+				if (problem[i][j]) {
+					current.count++;
+					Node cur = matrix[i][j];
+					int a, b;
+					last = cur;
+					cur.column = current;
+					a = i;
+					b = j;
+					do {
+						a = mod(a + 1, colNum);
+					} while (!problem[a][b]);
+					cur.right = matrix[a][b];
+
+					a = i;
+					b = j;
+					do {
+						a = mod(a - 1, colNum);
+					} while (!problem[a][b]);
+					cur.left = matrix[a][b];
+
+					a = i;
+					b = j;
+					do {
+						b = mod(b + 1, rowNum);
+					} while (!problem[a][b]);
+					cur.down = matrix[a][b];
+
+					a = i;
+					b = j;
+					do {
+						b = mod(b - 1, rowNum);
+					} while (!problem[a][b]);
+					cur.up = matrix[a][b];
+
+				}
+			}
+			if (last == current) {
+				current.up = last;
+				current.down = last;
+			} else {
+				current.up = last;
+				current.down = last.down;
+				current.down.up = current;
+				current.up.down = current;
+			}
+		}
+	}
+
+	LinkedList<Node> solution = new LinkedList<Node>();
+	List<Rectangle> solutions = new ArrayList<Rectangle>();
+
+	public void search() {
+//		System.out.println(this);
+		if (header.right == header) {
+			List<Rectangle> solutionClone = new ArrayList<Rectangle>();
+			solution.forEach(x -> solutionClone.add(new Rectangle(x.row, wrap)));
+			Collections.sort(solutionClone);
+			if (wrap.lmao.compare(solutions, solutionClone) < 0) {
+				solutions = solutionClone;
+			}
+			return;
+		} else {
+			Node column = chooseNextNode();
+			column.cover();
+			for (Node rowNode = column.down; rowNode != column; rowNode = rowNode.down) {
+				solution.addLast(rowNode);
+
+				for (Node rightNode = rowNode.right; rightNode != rowNode; rightNode = rightNode.right) {
+					rightNode.cover();
+				}
+				search();
+
+				solution.removeLast();
+				for (Node leftNode = rowNode.left; leftNode != rowNode; leftNode = leftNode.left) {
+					leftNode.uncover();
+				}
+			}
+
+			column.uncover();
+		}
+	}
+
+	public Node chooseNextNode() {
+		Node choice = header;
+		for (Node current = header.right; current != header; current = current.right) {
+			if (choice.count == 0 || (current.count < choice.count && current.count != 0)) {
+				choice = current;
+			}
+		}
+		return choice;
+	}
+
+	public static int mod(int a, int b) {
+		return (a % b + b) % b;
+	}
+}
+
+class Node {
+	Node left, right, up, down;
+	Node column;
+	int col, row;
+	int count;
+
+	public Node(int col, int row) {
+		this.col = col;
+		this.row = row;
+	}
+
+	public void cover() {
+		Node column = this.column;
+
+		column.right.left = column.left;
+		column.left.right = column.right;
+
+		for (Node row = column.down; row != column; row = row.down) {
+			for (Node rightNode = row.right; rightNode != row; rightNode = rightNode.right) {
+				rightNode.up.down = rightNode.down;
+				rightNode.down.up = rightNode.up;
+			}
+		}
+	}
+
+	public void uncover() {
+		Node column = this.column;
+
+		for (Node row = column.up; row != column; row = row.up) {
+			for (Node leftNode = row.left; leftNode != row; leftNode = leftNode.left) {
+				leftNode.up.down = leftNode;
+				leftNode.down.up = leftNode;
+			}
+		}
+		column.right.left = column;
+		column.left.right = column;
+	}
+
+	public String toString() {
+//			return "C" + rownum + "R" + colnum + "N" + num + "Condition: " + col;
+		return row + " " + col;
+	}
+}
+
+class Rectangle implements Comparable<Rectangle> {
+	int x, y, w, h;
+	CakeCutter wrap;
+
+	public Rectangle(int index, CakeCutter wrap) {
+		this.wrap = wrap;
+
+		int raisin = index / wrap.sizeOfRects / wrap.cakeSizes.size();
+		h = wrap.cakeSizes.get(index / wrap.sizeOfRects % wrap.cakeSizes.size());
+		w = wrap.sizeOfRects / h;
+		int x = wrap.position[raisin][0];
+		int y = wrap.position[raisin][1];
+		int yShift = index % w;
+		int xShift = (index / w) % h;
+		this.x = x - xShift;
+		this.y = y - yShift;
+	}
+
+	public String toString() {
+		List<String> slice = new LinkedList<String>();
+		for (int i = x; i < x + h; i++) {
+			slice.add(wrap.slices[i].substring(y, y + w));
+		}
+		return String.join("\n", slice);
+	}
+
+	@Override
+	public int compareTo(Rectangle o) {
+		if (x - o.x == 0) {
+			return y - o.y;
+		}
+		return x - o.x;
+	}
+}

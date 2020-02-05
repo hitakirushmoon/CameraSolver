@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;tiknandtjk&apos; in &apos;kata.BooleanOrder.solve()&apos; to &apos;ntikandntjk&apos;&#x0D;&#x0A;- Original project: &apos;yeet&apos;&#x0D;&#x0A;- Original element: &apos;kata.BooleanOrder.solve().tiknandtjk&apos;&#x0D;&#x0A;- Renamed element: &apos;tiknandtjk&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;tiknandtjk&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;kata{BooleanOrder.java[BooleanOrder~solve@tiknandtjk!1136!1192!1158!1167!QBigInteger;!0!false" name="ntikandntjk" references="true" stamp="1575015131168" version="1.0"/>
+</session>

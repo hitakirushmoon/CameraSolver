@@ -1,0 +1,73 @@
+package kata;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
+public class BooleanOrder {
+	boolean[] operands;
+	char[] operators;
+	long[][] t;
+
+	public static void main(String[] args) {
+		System.out.println(new BooleanOrder("ttftfftf", "|&^&&||").solve());
+	}
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = new boolean[operands.length()];
+		IntStream.range(0, this.operands.length).forEach(i -> this.operands[i] = operands.charAt(i) == 't');
+		this.operators = operators.toCharArray();
+		t = new long[operands.length()][operands.length()];
+		
+		for (int i = 0; i < operands.length(); i++) {
+			if (this.operands[i]) {
+				t[i][i] = 1;
+			}
+		}
+	}
+
+	public long solve() {
+		for (int g = 1; g < operands.length; g++) {
+			for (int i = 0; i + g < operands.length; i++) {
+				int j = i + g;
+				for (int k = i; k < j; k++) {
+					long tik, fik, tkj, fkj;
+					if (k == i) {
+						tik = t[i][i];
+						fik = 1 - t[i][i];
+					} else {
+						tik = t[i][k];
+						fik = t[k][i];
+					}
+					if (j == k + 1) {
+						tkj = t[j][j];
+						fkj = 1 - t[j][j];
+					} else {
+						tkj = t[k + 1][j];
+						fkj = t[j][k + 1];
+					}
+					if (operators[k] == '&') {
+						t[i][j] += tik * tkj;
+						t[j][i] += fik * fkj + fik * tkj + tik * fkj;
+					} else if (operators[k] == '|') {
+						t[j][i] += fik * fkj;
+						t[i][j] += tik * tkj + fik * tkj + tik * fkj;
+					} else {
+						t[i][j] += fik * tkj + tik * fkj;
+						t[j][i] += fik * fkj + tik * tkj;
+					}
+				}
+			}
+		}
+		for (long[] a : t) {
+			System.out.println(Arrays.toString(a));
+		}
+//		System.out.println();
+//		for (long[] a : f) {
+//			System.out.println(Arrays.toString(a));
+//		}
+
+		return t[0][operators.length];
+	}
+
+}

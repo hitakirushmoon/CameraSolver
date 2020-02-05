@@ -1,0 +1,66 @@
+package kata;
+
+import java.util.Random;
+
+public class Triangle {
+	public static void main(String[] args) {
+		StringBuilder test = new StringBuilder();
+		Random r = new Random();
+		for (int i = 0; i < Math.pow(3, 18); i++) {
+			test.append(toChar(r.nextInt(3)));
+		}
+		System.out.println("done!");
+		long time = System.nanoTime();
+		System.out.println(triangle(test.toString()));
+		System.out.println((System.nanoTime() - time) / 1E9);
+//		System.out.println(RGB.triangle(test.toString()));
+	}
+
+	static char[] values = new char[255];
+
+	static {
+		values['R' + 'G'] = 'B';
+		values['R' + 'B'] = 'G';
+		values['B' + 'G'] = 'R';
+		values['G' + 'G'] = 'G';
+		values['R' + 'R'] = 'R';
+		values['B' + 'B'] = 'B';
+	}
+
+	public static char triangle(final String row) {
+		char rgb = 'R' + 'G' + 'B';
+		char[] result = row.toCharArray();
+		for (int size = result.length; size > 1; size--) {
+			for (int i = 0; i < size - 1; i++) {
+				result[i] = values[result[i] + result[i + 1]];
+			}
+		}
+		return result[0];
+	}
+
+	public static int toInt(char rgb) {
+		switch (rgb) {
+		case 'R':
+			return 0;
+		case 'G':
+			return 1;
+		case 'B':
+			return -1;
+		default:
+			return 0;
+		}
+	}
+
+	public static char toChar(int rgb) {
+		switch ((rgb % 3 + 3) % 3) {
+		case 0:
+			return 'R';
+		case 1:
+			return 'G';
+		case 2:
+			return 'B';
+		default:
+			return ' ';
+		}
+	}
+}

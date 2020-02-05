@@ -1,0 +1,69 @@
+package kata;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
+public class BooleanOrder {
+	boolean[] operands;
+	char[] operators;
+	BigInteger[][] t;
+	BigInteger[][] f;
+
+	public static void main(String[] args) {
+		System.out.println(new BooleanOrder("ttftfftf","|&^&&||").solve());
+	}
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = new boolean[operands.length()];
+		IntStream.range(0, this.operands.length).forEach(i -> this.operands[i] = operands.charAt(i) == 't');
+		this.operators = operators.toCharArray();
+		t = new BigInteger[operands.length()][operands.length()];
+		f = new BigInteger[operands.length()][operands.length()];
+
+		for (int i = 0; i < operands.length(); i++) {
+			if (this.operands[i]) {
+				t[i][i] = BigInteger.ONE;
+				f[i][i] = BigInteger.ZERO;
+			} else {
+				f[i][i] = BigInteger.ONE;
+				t[i][i] = BigInteger.ZERO;
+			}
+		}
+	}
+
+	public BigInteger solve() {
+		for (int g = 1; g < operands.length; g++) {
+			for (int i = 0; i + g < operands.length; i++) {
+				int j = i + g;
+				t[i][j] = BigInteger.ZERO;
+				f[j][i] = BigInteger.ZERO;
+				for (int k = i; k < j; k++) {
+					BigInteger tik = t[i][k].add(f[k][i]);
+					BigInteger tkj = t[k + 1][j].add(f[j][k + 1]);
+					if (operators[k] == '&') {
+						t[i][j] = t[i][j].add(t[i][k].multiply(t[k + 1][j]));
+						f[j][i] = f[j][i].add((tik.multiply(tkj)).subtract(t[i][k].multiply(t[k + 1][j])));
+					}
+					else if (operators[k] == '|') {
+						f[j][i] = f[j][i].add(f[k][i].multiply(f[j][k + 1]));
+						t[i][j] = t[i][j].add((tik.multiply(tkj)).subtract(f[k][i].multiply(f[j][k + 1])));
+					} else {
+						t[i][j] = t[i][j].add(f[k][i].multiply(t[k + 1][j])).add(t[i][k].multiply(f[j][k + 1]));
+						f[j][i] = f[j][i].add(f[k][i].multiply(f[j][k + 1])).add(t[i][k].multiply(t[k + 1][j]));
+					}
+				}
+			}
+		}
+		for(BigInteger[] a : t) {
+			System.out.println(Arrays.toString(a));
+		}
+		System.out.println();
+		for(BigInteger[] a : f) {
+			System.out.println(Arrays.toString(a));
+		}
+		
+		return t[0][operators.length];
+	}
+
+}

@@ -1,0 +1,12 @@
+package kata;
+
+class Magnets {
+
+	public static double doubles(int maxk, int maxn) {
+		// your code
+	}
+
+	public static double v(int k, int n) {
+		return 1 / (k * Math.pow(n, 2 * k));
+	}
+}

@@ -1,0 +1,155 @@
+package kata;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+public class GraphTest {
+	public static void main(String[] args) {
+		int mod = 12, base = 3, remainder = 0;
+		Graph g = new Graph(mod, base,remainder);
+		System.out.println(g.getSol());
+		String solution = g.getSol();
+//		solution = solution.substring(0,5) + "*" + solution.substring(5, solution.length());
+
+		for (int i = 0; i < 300; i++) {
+			System.out.println(i);
+			System.out.println(Integer.toBinaryString(i));
+			System.out.println(Pattern.compile(solution).matcher(Integer.toBinaryString(i)).matches());
+		}
+	}
+}
+
+class Graph {
+	Node[] nodes;
+	Node root = new Node(-1);
+	Node end;
+
+	Graph(int mod, int base, int remainder) {
+		nodes = new Node[mod];
+		for (int i = 0; i < nodes.length; i++) {
+			nodes[i] = new Node(i);
+		}
+		for (Node n : nodes) {
+			for (int b = 0; b < base; b++) {
+				int child = (n.value * base + b) % mod;
+				if (child == n.value) {
+					if (n.self.isEmpty()) {
+						n.self = Node.paren(Integer.toString(b));
+					} else {
+						n.self = Node.paren(n.self + "|" + Integer.toString(b));
+					}
+				} else {
+					if (!n.children.containsKey(nodes[child])) {
+						nodes[child].parents.add(n);
+						n.children.put(nodes[child], Integer.toString(b));
+					} else {
+						n.children.put(nodes[child],
+								Node.paren(n.children.get(nodes[child]) + "|" + Integer.toString(b)));
+					}
+				}
+			}
+		}
+		nodes[0].parents.add(root);
+		root.children.put(nodes[0], "");
+
+		end = new Node(mod);
+		nodes[remainder].children.put(end, "");
+		end.parents.add(nodes[remainder]);
+		for (int i = mod - 1; i > -1; i--) {
+			nodes[i].removeSelf();
+		}
+	}
+
+	String getSol() {
+		return root.children.get(end);
+	}
+
+	public String toString() {
+		StringBuilder a = new StringBuilder();
+		a.append(root.children).append("\n");
+		for (Node node : nodes) {
+			a.append(node.value + "=" + node.self).append("\n").append(node.children).append("\n");
+		}
+		return a.toString();
+	}
+}
+
+class Node {
+	int value;
+	Map<Node, String> children = new HashMap<Node, String>();
+	List<Node> parents = new ArrayList<Node>();
+	String self = "";
+
+	public Node(int value) {
+		super();
+		this.value = value;
+	}
+
+	void removeSelf() {
+		if (!self.isEmpty()) {
+			self += "*";
+		}
+		for (Node parent : parents) {
+			for (Node child : children.keySet()) {
+				child.parents.remove(this);
+				String parentsToThis = parent.children.get(this);
+				String thisToChild = children.get(child);
+				String sol;
+
+				sol = paren(concat(concat(parentsToThis, self), thisToChild));
+				if (parent == child) {
+					if (!parent.self.isEmpty()) {
+						parent.self = paren(parent.self + "|" + sol);
+					} else {
+						parent.self = sol;
+					}
+					continue;
+				}
+				if (parent.children.containsKey(child)) {
+					sol = paren(parent.children.get(child) + "|" + sol);
+				} else {
+					child.parents.add(parent);
+				}
+				parent.children.put(child, sol);
+			}
+			parent.children.remove(this);
+
+		}
+	}
+
+	static boolean connectedParen(String a) {
+		if (!a.startsWith("(") || !a.endsWith(")")) {
+			return false;
+		}
+		int right = 0, left = 0;
+		for (int i = 0; i < a.length(); i++) {
+			if (a.charAt(i) == '(') {
+				right++;
+			} else if (a.charAt(i) == ')') {
+				left++;
+			}
+			if (right == left && i != a.length() - 1) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	static String paren(String a) {
+		if (a.length() == 1 || connectedParen(a)) {
+			return a;
+		}
+		return "(" + a + ")";
+	}
+
+	static String concat(String a, String b) {
+		return a + b;
+	}
+
+	public String toString() {
+		return " " + value;
+	}
+}

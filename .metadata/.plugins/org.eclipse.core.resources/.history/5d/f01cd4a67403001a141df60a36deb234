@@ -1,0 +1,15 @@
+package kata;
+
+public class Snippet {
+	public static void main(String[] args) {
+			  Family fam = new Family();
+		        fam.setParentOf("Frank", "Morgan");
+		        fam.setParentOf("Frank", "Dylan");
+		        fam.male("Dylan");
+		        assertEquals(false, fam.male("Morgan"));
+		}
+		static void assertEquals(Object a, Object b){
+			System.out.println(a == b);
+		}
+}
+

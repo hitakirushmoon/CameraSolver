@@ -1,0 +1,21 @@
+package kata;
+
+import java.math.BigInteger;
+
+public class Faberge {
+	public static void main(String[] args) {
+		System.out.println(height(BigInteger.valueOf(13), BigInteger.valueOf(550)));
+	}
+
+	public static BigInteger height(BigInteger n, BigInteger m) {
+		BigInteger ret = BigInteger.ONE;
+		if (m.compareTo(m.divide(BigInteger.TWO)) > 1) {
+			m = n.subtract(m);
+		}
+		for (BigInteger k = BigInteger.ONE; !k.equals(m); k.add(BigInteger.ONE)) {
+			ret = ret.multiply(n.subtract(k)).divide(k.add(BigInteger.ONE));
+		}
+		return ret;
+	}
+
+}

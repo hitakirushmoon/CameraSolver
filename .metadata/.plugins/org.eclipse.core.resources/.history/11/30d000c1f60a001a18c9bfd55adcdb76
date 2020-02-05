@@ -1,0 +1,259 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
+public class BreakPieces {
+	public static void main(String[] args) {
+		String shape = "+-----------------+\n" + "|                 |\n" + "|   +-------------+\n" + "|   |\n"
+				+ "|   |\n" + "|   |\n" + "|   +-------------+\n" + "|                 |\n" + "|                 |\n"
+				+ "+-----------------+";
+		for (String a : process(shape)) {
+			System.out.println(a);
+		}
+	}
+
+	public static String[] process(String shape) {
+		String[] lmao = shape.split("\n");
+		Queue<Node> graph = new PriorityQueue<Node>();
+		Node[][] map = new Node[lmao.length][lmao[0].length()];
+		for (int i = 0; i < lmao.length; i++) {
+			for (int j = 0; j < lmao[i].length(); j++) {
+				if (lmao[i].charAt(j) == '+') {
+					map[i][j] = new Node(i, j);
+					if (j < lmao[i].length() - 1)
+						map[i][j].hasThisNeighbor[0] = lmao[i].charAt(j + 1) == '-';
+					if (i < lmao.length - 1)
+						map[i][j].hasThisNeighbor[1] = lmao[i + 1].charAt(j) == '|';
+					if (j > 0)
+						map[i][j].hasThisNeighbor[2] = lmao[i].charAt(j - 1) == '-';
+					if (i > 0)
+						map[i][j].hasThisNeighbor[3] = lmao[i - 1].charAt(j) == '|';
+				}
+			}
+		}
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[i].length; j++) {
+				if (map[i][j] != null) {
+					if (map[i][j].hasThisNeighbor[0]) {
+						for (int k = 1; map[i][j].neighbors[0] == null; k++) {
+							if (map[i][j + k] != null) {
+								map[i][j].neighbors[0] = map[i][j + k];
+								map[i][j].costs[0] = k;
+								map[i][j + k].costs[2] = k;
+								map[i][j + k].neighbors[2] = map[i][j];
+							}
+						}
+					}
+					if (map[i][j].hasThisNeighbor[1]) {
+						for (int k = 1; map[i][j].neighbors[1] == null; k++) {
+							if (map[i + k][j] != null) {
+								map[i][j].neighbors[1] = map[i + k][j];
+								map[i][j].costs[1] = k;
+								map[i + k][j].costs[3] = k;
+								map[i + k][j].neighbors[3] = map[i][j];
+							}
+						}
+					}
+					graph.add(map[i][j]);
+				}
+			}
+		}
+		List<String> ans = new LinkedList<String>();
+		while (!graph.isEmpty()) {
+			ans.add(dijkstra(graph));
+		}
+		return ans.toArray(new String[ans.size()]);
+	}
+
+	static String dijkstra(Queue<Node> graph) {
+		Queue<Node> Q = new PriorityQueue<Node>(
+				(Node a, Node b) -> (int) (a.distance + a.estimate - b.estimate - b.distance));
+		Node current = graph.peek();
+		current.previous = null;
+		Node start = null, end = null;
+		for (int i = 0; i < 4; i++) {
+			if (!current.hasThisNeighbor[i])
+				continue;
+			if (start == null) {
+				start = current.neighbors[i];
+				start.previous = current;
+				start.distance = 0;
+				Q.add(start);
+			} else if (end == null) {
+				end = current.neighbors[i];
+				break;
+			}
+		}
+		current.unlink(graph);
+		for (Node node : graph) {
+			node.estimate = Math.sqrt((node.x - end.x) * (node.x - end.x) + (node.y - end.y) * (node.y - end.y));
+			if (node == start)
+				continue;
+			node.distance = Integer.MAX_VALUE;
+			node.previous = null;
+			Q.add(node);
+		}
+		while (!Q.isEmpty()) {
+			Node u = Q.poll();
+			for (int i = 0; i < 4; i++) {
+				if (!u.hasThisNeighbor[i])
+					continue;
+				Node v = u.neighbors[i];
+
+				int alt = u.distance + u.costs[i];
+				if (alt < v.distance) {
+					v.distance = alt;
+					v.previous = u;
+					Q.remove(v);
+					Q.add(v);
+					if (v == end) {
+						return reconstructPath(graph, v);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	static String reconstructPath(Queue<Node> graph, Node end) {
+		LinkedList<Node> path = new LinkedList<Node>();
+		int minx = Integer.MAX_VALUE;
+		int miny = Integer.MAX_VALUE;
+		int maxx = Integer.MIN_VALUE;
+		int maxy = Integer.MIN_VALUE;
+
+		while (end != null) {
+			path.add(end);
+			if (end.x > maxx)
+				maxx = end.x;
+			if (end.y > maxy)
+				maxy = end.y;
+			if (end.x < minx)
+				minx = end.x;
+			if (end.y < miny)
+				miny = end.y;
+
+			if (end.count() < 2) {
+				end.unlink(graph);
+			} else if (end.count() == 2) {
+				end.unlinkStraight(graph);
+			}
+			end = end.previous;
+		}
+		int h = maxx - minx + 1, w = maxy - miny + 1;
+		char[][] piece = new char[h][w];
+		end = path.peek();
+		do {
+			Node p = end.previous;
+			if (p == null) {
+				p = path.peek();
+			}
+			for (int i = end.x; i != p.x; i += Math.signum(p.x - end.x)) {
+				piece[i - minx][end.y - miny] = '|';
+			}
+			for (int i = end.y; i != p.y; i += Math.signum(p.y - end.y)) {
+				piece[end.x - minx][i - miny] = '-';
+			}
+			piece[end.x - minx][end.y - miny] = '+';
+			end = p;
+		} while (end != path.peek());
+		List<String> ret = new LinkedList<String>();
+		for (char[] lmao : piece) {
+			String a = "";
+			for (char lmeo : lmao) {
+				if (lmeo == 0)
+					a += ' ';
+				else
+					a += lmeo;
+			}
+			ret.add(a.stripTrailing());
+		}
+		return String.join("\n", ret);
+	}
+}
+
+class Node implements Comparable<Node> {
+	Node[] neighbors = new Node[4];
+	int[] costs = new int[4];
+	boolean[] hasThisNeighbor = new boolean[4];
+	int x, y;
+	int distance;
+	Node previous;
+	double estimate;
+
+	public Node(int x, int y) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
+
+	public int count() {
+		int diff = 0;
+		for (int i = 0; i < 4; i++) {
+			if (hasThisNeighbor[i])
+				diff++;
+		}
+		return diff;
+	}
+
+	public void unlink(Queue<Node> graph) {
+		graph.remove(this);
+		for (int i = 0; i < 4; i++) {
+			if (!hasThisNeighbor[i])
+				continue;
+			Node n = neighbors[i];
+			int thisIndex = (i + 2) % 4;
+			n.hasThisNeighbor[thisIndex] = false;
+			n.costs[thisIndex] = 0;
+			if (n.count() == 2) {
+				n.unlinkStraight(graph);
+			}
+//			break;
+		}
+
+	}
+
+	public void unlinkStraight(Queue<Node> graph) {
+		if (hasThisNeighbor[0] && hasThisNeighbor[2]) {
+			graph.remove(this);
+			neighbors[0].neighbors[2] = neighbors[2];
+			neighbors[0].costs[2] = costs[2] + costs[0];
+			neighbors[2].neighbors[0] = neighbors[0];
+			neighbors[2].costs[0] = costs[2] + costs[0];
+			return;
+		}
+		if (hasThisNeighbor[1] && hasThisNeighbor[3]) {
+			graph.remove(this);
+			neighbors[1].neighbors[3] = neighbors[3];
+			neighbors[1].costs[3] = costs[3] + costs[1];
+			neighbors[3].neighbors[1] = neighbors[1];
+			neighbors[3].costs[1] = costs[3] + costs[1];
+			return;
+		}
+	}
+
+	public String toString() {
+		return "x: " + x + "; y: " + y + " " + Arrays.toString(costs);
+	}
+
+	@Override
+	public int compareTo(Node o) {
+		int diff = 0;
+		for (int i = 0; i < 4; i++) {
+			if (hasThisNeighbor[i])
+				diff++;
+			if (o.hasThisNeighbor[i])
+				diff--;
+		}
+		if (diff == 0) {
+			for (int i = 0; i < 4; i++) {
+				diff += costs[i] - o.costs[i];
+			}
+		}
+		return diff;
+	}
+}

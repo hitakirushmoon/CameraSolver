@@ -1,0 +1,16 @@
+package kata;
+import java.util.*;
+
+
+public class MazeSolver {
+    
+    public MazeSolver(int[][] maze) {
+        // Your code here!
+    }
+    
+    public List<String> solve() {
+        // Your code here too!
+        return Arrays.asList("");
+    }    
+}
+

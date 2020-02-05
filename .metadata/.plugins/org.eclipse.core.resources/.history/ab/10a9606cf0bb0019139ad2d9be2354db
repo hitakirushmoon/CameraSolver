@@ -1,0 +1,12 @@
+package simulation;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
+
+public class World {
+	double radius;
+	Queue<Creature> creatures = new LinkedList<Creature>();
+	Queue<Place> food = new LinkedList<Place>();
+
+}

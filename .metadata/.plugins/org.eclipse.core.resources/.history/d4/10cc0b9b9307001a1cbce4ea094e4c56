@@ -1,0 +1,160 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
+public class MazeSolver {
+	Cell[][][] fullMaze;
+	Cell start;
+	int xEnd, yEnd;
+
+	public MazeSolver(int[][] maze) {
+		fullMaze = new Cell[4][maze.length][maze[0].length];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[i].length; j++) {
+
+				fullMaze[0][i][j] = new Cell(maze[i][j]);
+				for (int k = 1; k < fullMaze.length - 1; k++) {
+					fullMaze[k][i][j] = fullMaze[k - 1][i][j].createNextInterveal();
+				}
+				fullMaze[fullMaze.length - 1][i][j].thisNextInterval = fullMaze[0][i][j];
+				if (maze[i][j] == -1) {
+					start = fullMaze[0][i][j];
+				}
+				if (maze[i][j] == -2) {
+					xEnd = i;
+					yEnd = j;
+				}
+			}
+		}
+		for (int i = 1; i < maze.length; i++) {
+			for (int j = 1; j < maze[i].length; j++) {
+				for (int k = 0; k < fullMaze.length; k++) {
+					fullMaze[i - 1][j][k].neighbors[0] = fullMaze[i][j][k];
+					fullMaze[i][j][k].neighbors[2] = fullMaze[i - 1][j][k];
+					fullMaze[i][j - 1][k].neighbors[1] = fullMaze[i][j][k];
+					fullMaze[i][j][k].neighbors[3] = fullMaze[i][j - 1][k];
+
+					fullMaze[i - 1][j][k].neighborsNextInterval[0] = fullMaze[i][j][k].thisNextInterval;
+					fullMaze[i][j][k].neighborsNextInterval[2] = fullMaze[i - 1][j][k].thisNextInterval;
+					fullMaze[i][j - 1][k].neighborsNextInterval[1] = fullMaze[i][j][k].thisNextInterval;
+					fullMaze[i][j][k].neighborsNextInterval[3] = fullMaze[i][j - 1][k].thisNextInterval;
+				}
+			}
+		}
+	}
+
+	public List<String> solve() {
+		// Your code here too!
+		return Arrays.asList("");
+	}
+
+	List<String> reconstruct_path(Cell current) {
+		String total_path = "";
+		while (current != null) {
+			total_path = current.last + total_path;
+			current = current.last;
+
+		}
+		String[] solution = total_path.split(" ");
+		for (String s : solution) {
+			s.replace(",", "");
+		}
+		return Arrays.asList();
+	}
+
+	List<String> A_Star(Cell start) {
+		Queue<Cell> openSet = new PriorityQueue<Cell>();
+		openSet.add(start);
+		while (!openSet.isEmpty()) {
+			Cell current = openSet.poll();
+			if (current.isGoal) {
+			}
+			for (int i = 0; i < current.neighbors.length; i++) {
+				Cell neighbor = current.neighbors[i];
+				if (neighbor == current.last) {
+					continue;
+				}
+				if (current.cost < neighbor.cost) {
+					neighbor.last = current;
+					neighbor.stringLast = getLast(i);
+					neighbor.cost = current.cost;
+
+					if (!openSet.contains(neighbor)) {
+						openSet.add(neighbor);
+					}
+				}
+			}
+			for (int i = 0; i < current.neighborsNextInterval.length; i++) {
+				Cell neighborNextInterval = current.neighborsNextInterval[i];
+				if (current.cost + 1 < neighborNextInterval.cost) {
+					neighborNextInterval.last = current;
+					neighborNextInterval.stringLast = " " + getLast(i);
+
+					neighborNextInterval.cost = current.cost + 1;
+					if (!openSet.contains(neighborNextInterval)) {
+						openSet.add(neighborNextInterval);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	String getLast(int a) {
+		switch (a) {
+		case 0:
+			return "E";
+		case 1:
+			return "S";
+		case 2:
+			return "W";
+		case 3:
+			return "N";
+		default:
+			return ",";
+		}
+	}
+}
+
+class Cell {
+	boolean[] walls;
+	Cell thisNextInterval;
+	Cell[] neighbors = new Cell[4];
+	Cell[] neighborsNextInterval = new Cell[5];
+	boolean isGoal;
+	Cell last;
+	String stringLast = "";
+	int cost = Integer.MAX_VALUE;
+
+	public Cell(int index) {
+		if (index == -2) {
+			isGoal = true;
+			return;
+		}
+		if (index == -1) {
+			cost = 0;
+			return;
+		}
+		for (int i = 0; i < 4; i++) {
+			walls[i] = (index >> i & 1) == 1;
+		}
+	}
+
+	public Cell(boolean rightWall, boolean bottomWall, boolean leftWall, boolean topWall) {
+		walls[0] = rightWall;
+		walls[1] = bottomWall;
+		walls[2] = leftWall;
+		walls[3] = topWall;
+	}
+
+	public Cell createNextInterveal() {
+		Cell thisNextInterval = new Cell(walls[1], walls[2], walls[3], walls[0]);
+		this.thisNextInterval = thisNextInterval;
+		neighborsNextInterval[5] = thisNextInterval;
+		return thisNextInterval;
+	}
+}

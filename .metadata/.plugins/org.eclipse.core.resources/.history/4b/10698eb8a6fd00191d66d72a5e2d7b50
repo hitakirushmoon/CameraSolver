@@ -1,0 +1,9 @@
+package yeet;
+
+public class QuickGame {
+	static boolean[] arr = new boolean[52];
+
+	public static void main(String[] args) {
+	}
+
+}

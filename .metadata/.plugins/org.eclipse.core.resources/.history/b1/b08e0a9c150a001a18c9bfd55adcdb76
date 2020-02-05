@@ -1,0 +1,17 @@
+package kata;
+
+class Magnets {
+
+	public static double doubles(int maxk, int maxn) {
+		double sum = 0;
+		for (int k = 0; k < maxk; k++) {
+			for (int n = 0; n < maxn; n++) {
+
+			}
+		}
+	}
+
+	public static double v(int k, int n) {
+		return 1 / (k * Math.pow(n, 2 * k));
+	}
+}

@@ -1,0 +1,7 @@
+package kata;
+class Magnets {
+    
+    public static double doubles(int maxk, int maxn) {
+        // your code
+    }
+}

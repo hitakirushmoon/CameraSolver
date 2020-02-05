@@ -1,0 +1,13 @@
+package pid;
+
+import java.awt.Graphics2D;
+
+public class Controller implements Renderable {
+	Coordinates targetLocation, currentLocation;
+
+	@Override
+	public void render(Graphics2D g) {
+		targetLocation.render(g);	
+	}
+
+}

@@ -1,0 +1,7 @@
+package simulation;
+
+public class World {
+	double radius;
+	double time;
+	double foodCount;
+}

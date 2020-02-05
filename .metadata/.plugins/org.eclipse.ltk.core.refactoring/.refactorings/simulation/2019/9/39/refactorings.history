@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 2 packages to &apos;LightCycle/src&apos;&#x0D;&#x0A;- Original project: &apos;simulation&apos;&#x0D;&#x0A;- Destination element: &apos;LightCycle/src&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     simulation/src/interfaces&#x0D;&#x0A;     simulation/src/main" description="Copy packages" destination="=LightCycle/src" element1="/src&lt;interfaces" element2="/src&lt;main" flags="589830" fragments="2" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyPackages" stamp="1569235393532" version="1.0"/>
+</session>

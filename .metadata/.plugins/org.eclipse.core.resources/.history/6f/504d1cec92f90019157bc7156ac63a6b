@@ -1,0 +1,134 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
+public class FPT {
+	int[] stations;
+
+	public static void main(String[] args) {
+		FPT test = new FPT(new int[] { 0, 24, 35, 64 });
+		System.out.println(test.solve());
+//		List<Integer> obstacles = new LinkedList<Integer>();
+//		System.out.println(aStarPath(0, 47, 1, obstacles));
+//		obstacles.add(1);
+//		System.out.println(aStarPath(0, 47, 1, obstacles));
+//		obstacles.add(11);
+//		System.out.println(aStarPath(0, 47, 1, obstacles));
+	}
+
+	public FPT(int[] stations) {
+		this.stations = stations;
+	}
+
+	public List<Integer> solve() {
+		List<Integer> solution = new LinkedList<Integer>();
+		for (int i = 1; i < stations.length; i++) {
+			solution.addAll(aStarPath(stations[i - 1], stations[i], 0, new LinkedList<Integer>()));
+		}
+		return solution;
+	}
+
+	public static List<Integer> aStarPath(int start, int goal, int h, List<Integer> obstacles) {
+		int[] cameFrom = new int[100];
+		int[] gScore = new int[100];
+		int[] fScore = new int[100];
+		for (int i = 0; i < 100; i++) {
+			gScore[i] = 1000;
+			fScore[i] = 1000;
+			cameFrom[i] = -1;
+		}
+		gScore[start] = 0;
+		fScore[start] = h(start, goal);
+		Comparator<Integer> comp = (Integer a, Integer b) -> (fScore[a] - fScore[b]);
+		Queue<Integer> openSet = new PriorityQueue<Integer>(comp);
+		openSet.add(start);
+		while (!openSet.isEmpty()) {
+			int current = openSet.poll();
+			if (current == goal) {
+				for(int i = 0; i < 10; i++) {
+					for(int i2 = 0; i2 < 10; i2++) {
+						System.out.print(fScore[i * 10 + i2]);
+						System.out.print(", ");
+					}
+					System.out.println();
+				}
+				return reconstruct_path(cameFrom, current);
+			}
+			Queue<Integer> neighbors = new LinkedList<Integer>();
+			if (current % 10 != 0) {
+				neighbors.add(current - 1);
+			}
+			if (current % 10 != 9) {
+				neighbors.add(current + 1);
+			}
+			if (current / 10 != 0) {
+				neighbors.add(current - 10);
+			}
+			if (current / 10 != 9) {
+				neighbors.add(current + 10);
+			}
+
+			if (current != start) {
+				neighbors.remove(cameFrom[current]);
+			}
+			for (Integer neighbor : neighbors) {
+				boolean directionChange;
+				if (current != start) {
+					directionChange = neighbor + cameFrom[current] - current * 2 == 0;
+				} else {
+					directionChange = true;
+				}
+				int tentative_gScore = gScore[current] + (directionChange ? 2 : 3);
+				if (tentative_gScore < gScore[neighbor]) {
+					cameFrom[neighbor] = current;
+					gScore[neighbor] = tentative_gScore;
+					fScore[neighbor] = gScore[neighbor] + h(neighbor, goal);
+					if (!openSet.contains(neighbor) && !obstacles.contains(neighbor)) {
+						openSet.add(neighbor);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public static List<Integer> simplestPath(int x0, int y0, int x1, int y1, boolean verticalFirst) {
+		List<Integer> ans = new LinkedList<Integer>();
+		if (verticalFirst) {
+			for (int i = x0; i < x1; i++) {
+				ans.add(i * 10 + y0);
+			}
+			for (int i = y0; i < y1; i++) {
+				ans.add(x1 * 10 + i);
+			}
+		} else {
+			for (int i = y0; i < y1; i++) {
+				ans.add(x0 * 10 + i);
+			}
+			for (int i = x0; i < x1; i++) {
+				ans.add(i * 10 + y1);
+			}
+
+		}
+		return ans;
+	}
+
+	public static List<Integer> reconstruct_path(int[] cameFrom, int current) {
+		LinkedList<Integer> total_path = new LinkedList<Integer>();
+		total_path.add(current);
+		while (cameFrom[current] > 0) {
+			current = cameFrom[current];
+			total_path.addFirst(current);
+		}
+		return total_path;
+	}
+
+	public static int h(int start, int end) {
+		return Math.abs(start / 10 - end / 10) * 2 + Math.abs(start % 10 - end % 10) * 2;
+	}
+}

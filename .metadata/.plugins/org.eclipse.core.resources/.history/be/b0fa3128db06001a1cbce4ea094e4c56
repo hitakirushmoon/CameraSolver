@@ -1,0 +1,105 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class CakeCutter {
+
+	String cake;
+
+	public static void main(String[] args) {
+		String cake = String.join("\n",
+				Arrays.asList(".o.o....", "........", "....o...", "........", ".....o..", "........"));
+		System.out.println(new CakeCutter(cake).cut());
+	}
+
+	public CakeCutter(String cake) {
+		this.cake = cake;
+	}
+
+	Set<Integer> cakeSizes = new TreeSet<Integer>();
+
+	public List<String> cut() {
+		System.out.println(cake);
+
+		String[] slices = cake.split("\n");
+		int m = slices.length;
+		int n = slices[0].length();
+		int count = cake.length() - cake.replace("o", "").length();
+		if (m * n % count != 0) {
+			return null;
+		}
+
+		int sizeOfRects = m * n / count;
+		for (int i = 1; i < Math.sqrt(sizeOfRects); i++) {
+			if (sizeOfRects % i == 0) {
+				cakeSizes.add(i);
+				cakeSizes.add(sizeOfRects / i);
+			}
+		}
+		boolean[][] matrix = new boolean[m * n][m * n * cakeSizes.size()];
+		int[][] position = new int[count][2];
+		System.out.println(cakeSizes);
+		int raisin = 0;
+		for (int x = 0; x < m && raisin < count; x++) {
+			for (int y = 0; y < n && raisin < count; y++) {
+				if (slices[x].charAt(y) == 'o') {
+					position[raisin][0] = x;
+					position[raisin][1] = y;
+					int factor = 0;
+					for (Integer i : cakeSizes) {
+						int w = i;
+						int h = sizeOfRects / i;
+						for (int xShift = 0; xShift < w; xShift++) {
+							if (x - xShift < 0 || x - xShift + w > m) {
+								continue;
+							}
+							for (int yShift = 0; yShift < h; yShift++) {
+								if (y - yShift < 0 || y - yShift + h > n) {
+									continue;
+								}
+//								raisin 0 -> count, factor 0 -> cakeSizes.size(), xShift 0 -> w, yShift 0 -> h
+								int index = yShift + h * (xShift + w * (factor + cakeSizes.size() * raisin));
+								for (int xFill = 0; xFill < w; xFill++) {
+									for (int yFill = 0; yFill < h; yFill++) {
+										matrix[(x - xShift + xFill) * n + y - yShift + yFill][index] = true;
+										;
+									}
+								}
+							}
+						}
+						factor++;
+					}
+					raisin++;
+				}
+			}
+		}
+		DancingLinks solver = new DancingLinks(matrix);
+		solver.search();
+		solver.solutions.sort((LinkedList<Node> a, LinkedList<Node> b) -> a.peekFirst().row - b.peekFirst().row);
+		LinkedList<Integer> solution = new LinkedList<Integer>();
+		solver.solutions.peek().forEach(x -> solution.add(x.row));
+		LinkedList<Integer> sizes = new LinkedList<Integer>(cakeSizes);
+		LinkedList<String> result = new LinkedList<String>();
+		for (int i : solution) {
+//			LinkedList<String> slice = new LinkedList<String>();
+			raisin = i / sizeOfRects / cakeSizes.size();
+			int h = sizes.get(i / sizeOfRects % cakeSizes.size());
+			int w = sizeOfRects / h;
+			int x = position[raisin][0];
+			int y = position[raisin][1];
+			int yShift = i % h;
+			int xShift = (i / h) % w;
+//			for (int xFill = x - xShift; xFill < x - xShift + h; xFill++) {
+//				slice.add(slices[xFill].substring(y - yShift, y - yShift + w));
+//			}
+//			result.add(String.join("\n", slice));
+		}
+	
+//		return solver.solution;
+		return result;
+	}
+}

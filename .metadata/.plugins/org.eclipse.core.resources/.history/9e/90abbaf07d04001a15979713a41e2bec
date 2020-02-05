@@ -1,0 +1,45 @@
+package kata;
+
+import java.util.Arrays;
+
+public class Immortal {
+	public static void main(String[] args) {
+		int m = 7, n = 5, l = 0;
+		for (int[] row : genXor(m, n, l)) {
+			System.out.println(Arrays.toString(row));
+		}
+//		System.out.println((double)(test(m, n) - sum)/l);
+		System.out.println(sum);
+
+	}
+
+	static int sum = 0;
+
+	public static int[][] genXor(int m, int n, int l) {
+		sum = 0;
+		int[][] table = new int[m][n];
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				table[i][j] = Math.max((i ^ j) - l, 0);
+				sum += table[i][j];
+			}
+		}
+		return table;
+	}
+
+	public static int test(int m, int n) {
+		int sum = 0;
+		for (int i = 1; i < m || i < n; i *= 2) {
+			int m1 = m % i;
+			int n1 = n % i;
+			int m2 = m / i;
+			int n2 = n / i;
+			int firstQuad = (m2 * n2) / 2 * i * i * i;
+			int lastQuad = (m2 + n2) % 2 * i * m1 * n1;
+			int secondQuad = (m2 % 2 + n2) / 2 * i * i * m1;
+			int thridQuad = (n2 % 2 + m2) / 2 * i * i * n1;
+			sum += firstQuad + secondQuad + thridQuad + lastQuad;
+		}
+		return sum;
+	}
+}

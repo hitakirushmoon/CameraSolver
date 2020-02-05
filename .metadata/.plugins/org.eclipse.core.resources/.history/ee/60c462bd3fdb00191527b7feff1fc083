@@ -1,0 +1,20 @@
+package main;
+
+import java.util.Random;
+
+public class Main {
+	public static void main(String[] args) {
+//		SwingUtilities.invokeLater(new Runnable(){
+//			public void run(){
+//				new MainWindow();
+//			}
+//		});
+//	}
+		int[] rand  = new int[43];
+		for(int i = 1; i <= rand.length; i++) {
+			rand[i] = i;
+		}
+		Random random = new Random();
+		
+	}
+}

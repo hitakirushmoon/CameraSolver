@@ -1,0 +1,51 @@
+package simulation;
+
+public class Creature {
+	double direction;
+	double speed;
+	double size;
+	double sense;
+	double energy = 1;
+	World world;
+	Place position;
+	Place target;
+
+	public Creature(World world, double posX, double posY, double speed, double size, double sense) {
+		this.position = new Place(posX, posY);
+		this.world = world;
+		this.direction = Math.atan2(posY, posX);
+		this.speed = speed;
+		this.size = size;
+		this.sense = sense;
+	}
+
+	public Creature(double direction, double speed, double size, double sense, World world, Place position) {
+		this.direction = direction;
+		this.speed = speed;
+		this.size = size;
+		this.sense = sense;
+		this.world = world;
+		this.position = position;
+	}
+
+	public Creature clone() {
+		return new Creature(world, position, speed, size, sense);
+	}
+	public void reset() {
+		
+	}
+	void update() {
+		
+	}
+	void updateTarget() {
+	}
+
+	void move() {
+	}
+
+	void eat() {
+	}
+
+	void reproduce() {
+	}
+}

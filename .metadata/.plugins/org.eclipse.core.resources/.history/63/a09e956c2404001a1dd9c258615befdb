@@ -1,0 +1,34 @@
+package kata;
+
+import java.math.BigInteger;
+
+public class Faberge {
+	public static void main(String[] args) {
+		System.out.println(height(BigInteger.valueOf(13), BigInteger.valueOf(550)));
+	}
+
+	public static BigInteger height(BigInteger n, BigInteger m) {
+		if (n.equals(BigInteger.ZERO) || m.equals(BigInteger.ZERO)) {
+			return BigInteger.ZERO;
+		}
+		return height(n.subtract(BigInteger.ONE), m).add(height(n.subtract(BigInteger.ONE), m.subtract(BigInteger.ONE)))
+				.add(BigInteger.ONE);
+	}
+
+	static BigInteger binomial(final int N, final int K) {
+	    BigInteger ret = BigInteger.ONE;
+	    for (int k = 0; k < K; k++) {
+	        ret = ret.multiply(BigInteger.valueOf(N-k))
+	                 .divide(BigInteger.valueOf(k+1));
+	    }
+	    return ret;
+	}
+	static BigInteger binomial(BigInteger n, BigInteger m) {
+		BigInteger ret = BigInteger.ONE;
+		for(BigInteger k = BigInteger.ONE; !k.equals(n); k.add(BigInteger.ONE)) {
+			ret = ret.multiply(n.subtract(k)).divide(k.add(BigInteger.ONE));
+		}
+		return ret;
+	}
+
+}

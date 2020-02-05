@@ -1,0 +1,12 @@
+package kata;
+
+public class CountBinary {
+	public static void main(String[] args) {
+	}
+
+	public static String countBin(String s) {
+		int zeros = s.length() - s.replace("0", "").length();
+		int ones = s.length() - s.replace("1", "").length();
+
+	}
+}

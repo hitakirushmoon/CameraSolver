@@ -1,0 +1,209 @@
+package vision;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import edu.wpi.first.cameraserver.*;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
+
+public class Vision {
+
+	public Thread m_visionThread;
+	
+	public void vision() {
+		m_visionThread = new Thread(() -> {
+		});
+		m_visionThread.setDaemon(true);
+		m_visionThread.start();
+	}
+
+	NetworkTable RPi = NetworkTableInstance.getDefault().getTable("/Raspberry Pi");
+	
+	NetworkTableEntry xEntry = RPi.getEntry("X");
+  NetworkTableEntry yEntry = RPi.getEntry("Y");
+  NetworkTableEntry distance2Entry = RPi.getEntry("distance2");
+  NetworkTableEntry distance3Entry = RPi.getEntry("distance3");
+	NetworkTableEntry distanceFinalEntry = RPi.getEntry("distanceFinal");
+	// NetworkTableEntry resetEntry = RPi.getEntry("reset?");
+
+
+	double centerX = 0, centerY = 0;
+	public double averageSize;
+	boolean centered;
+	public boolean paused;
+	
+	public double coeff = 1;
+	public double olddistance = 0;
+
+	CvSink cvSink = CameraServer.getInstance().getVideo();
+	
+	CvSource outputStream = CameraServer.getInstance().putVideo("RPi", 160, 120);
+
+	Mat mat = new Mat();
+	Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+
+	List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+	List<RotatedRect> rotatedrect = new ArrayList<RotatedRect>();
+	List<Rect> boundingrect = new ArrayList<Rect>();
+	
+	Mat hierarchy = new Mat();
+
+	int H = 75; 
+	int S = 200; 
+	int V = 200;
+	int HE = 50; 
+	int SE = 150; 
+	int VE = 75;
+
+  public int screenWidth = 240;
+  public int midScreen = 240/2;
+	public double centerX_final = 0;
+	public double centerY_final = 0;
+	public double height = 0;
+	public double width = 0;
+	public double distance_final = 0;
+	public double distance2 = 0;
+	public double distance3 = 0;
+
+
+
+	public void resetNumbers(){
+		centerX_final = 0;
+		centerY_final = 0;
+		height = 0;
+		width = 0;
+		distance_final = 0;
+		distance2 = 0;
+		distance3 = 0;
+	}
+	
+	public int process(){
+
+			resetNumbers();
+		
+
+		contours.removeAll(contours);
+		rotatedrect.removeAll(rotatedrect);
+    	boundingrect.removeAll(boundingrect);
+
+		if (cvSink.grabFrame(mat) == 0) {
+			outputStream.notifyError(cvSink.getError());
+			return 0;
+		}
+
+		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2HSV);
+		Core.inRange(mat, new Scalar(H - HE, S - SE, V - VE), new Scalar(H + HE, S + SE, V + VE), mat);
+		Imgproc.dilate(mat, mat, kernel);
+		Imgproc.findContours(mat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+
+		if (!paused){
+			for (int i = 0; i < contours.size(); i++) {
+        // make boundingrect surrounding the contours
+
+				Rect newrect = Imgproc.boundingRect(contours.get(i));
+				if (newrect.size().area() > 100){ // filter all the contours that meet the condition
+					boundingrect.add(newrect);
+				}
+
+				MatOfPoint2f dst = new MatOfPoint2f();  
+				contours.get(i).convertTo(dst, CvType.CV_32F);
+				// convert to Cv_32F
+
+				RotatedRect rect = Imgproc.minAreaRect(dst);
+				if (rect.size.area() > 100){
+          		 // filter all the contours that meet the condition
+				rotatedrect.add(rect);
+			
+						Imgproc.putText(mat, Math.round(rect.angle)+"", new Point(rect.center.x, rect.center.y-30), 0 , 0.5 , new Scalar(255,255,255));
+						Imgproc.putText(mat, Math.round(rect.size.area())+"", new Point(rect.center.x, rect.center.y+50), 0 , 0.5 , new Scalar(255,255,255));
+						Imgproc.putText(mat, Math.round(rect.center.x)+"", new Point(rect.center.x, rect.center.y+80), 0 , 0.5 , new Scalar(255,255,255));							
+						// Imgproc.putText(mat, i+"", new Point(Imgproc.minAreaRect(dst).center.x,Imgproc.minAreaRect(dst).center.y-80), 0 , 0.5 , new Scalar(255,255,255));
+					}
+				}
+
+			//sort by x
+			for (int i = rotatedrect.size() - 1; i >= 0; i--){
+				// Imgproc.putText(mat, i - 1 + "", new Point(rotatedrect.get(i - 1).center.x,rotatedrect.get(i - 1).center.y-50), 0 , 0.5 , new Scalar(255,255,255));
+				for (int j = 0; j < i - 2; j++){
+          // change the positions of all the contours
+					if (rotatedrect.get(j).center.x > rotatedrect.get(j + 1).center.x){
+						RotatedRect mid = rotatedrect.get(j);
+						rotatedrect.set(j, rotatedrect.get(j + 1));
+						rotatedrect.set(j + 1, mid);	
+					}
+					if (boundingrect.get(j).x > boundingrect.get(j+1).x){
+						Rect middle = boundingrect.get(j);
+						boundingrect.set(j, boundingrect.get(j + 1));
+						boundingrect.set(j + 1, middle);
+					}
+				}
+			}	
+
+			for (int i = 0; i < rotatedrect.size() - 1; i++) {
+				if (rotatedrect.get(i).angle < rotatedrect.get(i+1).angle && Math.round(rotatedrect.get(i).angle)!=-90.00) {
+          // coordinates
+          centerX = Math.round((rotatedrect.get(i).center.x+rotatedrect.get(i+1).center.x)/2);
+          centerY = Math.round((rotatedrect.get(i).center.y+rotatedrect.get(i+1).center.y)/2);
+
+					if (Math.abs(midScreen - centerX) < Math.abs(midScreen - centerX_final)){
+          // coordinates of the contours closest to the center of the image
+					centerX_final = centerX;
+          centerY_final = centerY;
+ 
+					height = boundingrect.get(i).height;
+					width = boundingrect.get(i).width;
+					// distance1 = 2.3/Math.tan(Math.toRadians(width*640/70.42));
+          // distance2 = 15*70.42/(2*height*Math.tan(Math.toRadians(70.42)));
+          
+          // calculate distance from camera to the target
+					distance3 = (6.5 * screenWidth) / (2 * height * Math.tan(70.42/2)) * 2.54;
+					distance2 = 7000/height;
+					distance_final = distance2 + (distance2-distance3)*2.45;
+					}
+
+					Imgproc.putText(mat, i+"", new Point(boundingrect.get(i).x, boundingrect.get(i).y - 20), 0, 0.5, new Scalar(255,255,255));
+					Imgproc.putText(mat, "*", new Point(centerX_final,centerY_final), 0 , 0.5 , new Scalar(255,255,255));
+					// centered = true;
+					averageSize = (rotatedrect.get(i).size.area() + rotatedrect.get(i + 1).size.area())/2;
+				}
+				// if (!centered){
+				// 	averageSize = -1;
+				// }
+			}
+		}
+
+		// else {
+		// 	averageSize = -1;
+		// }
+
+		xEntry.setNumber(centerX_final);
+		yEntry.setNumber(centerY_final);
+    distance2Entry.setNumber(distance2);
+    distance3Entry.setNumber(distance3);
+		distanceFinalEntry.setNumber(distance_final);
+		// resetEntry.setBoolean(false);
+
+		outputStream.putFrame(mat);
+
+		return 1;
+		}
+	}
+	

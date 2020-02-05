@@ -1,0 +1,26 @@
+package kata;
+
+public class Line {
+	public static void main(String[] args) {
+		Human h1 = new Human("Dzung", 15);
+		Human h2 = new Human("Minh", 16);
+		System.out.println(h1.species);
+		System.out.println(h2.species);
+		Human.species = "Unicorn";
+		System.out.println(h1.species);
+		System.out.println(h2.species);
+		
+		
+	}
+
+}
+
+class Human{
+	final String name;
+	int age;
+	static String species = "Human";
+	Human(String name, int age){
+		this.name = name;
+		this.age = age;
+	}
+}

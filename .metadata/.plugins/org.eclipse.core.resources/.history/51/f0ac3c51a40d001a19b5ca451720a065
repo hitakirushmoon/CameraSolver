@@ -1,0 +1,6 @@
+package kata;
+
+public class CountBinary {
+	public static void main(String[] args) {
+	}
+}

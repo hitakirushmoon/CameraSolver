@@ -1,0 +1,29 @@
+package kata;
+
+public class BreakPieces {
+	public static String[] process(String shape) {
+		String[] lmao = shape.split("\n");
+		Node[][] map = new Node[lmao.length][lmao[0].length()];
+		for (int i = 0; i < lmao.length; i++) {
+			for (int j = 0; j < lmao[0].length(); j++) {
+				if (lmao[i].charAt(j) == '+') {
+					map[i][j] = new Node(i, j);
+				}
+			}
+		}
+		return lmao;
+	}
+}
+
+class Node {
+	Node[] neighbors = new Node[4];
+	int[] costs = new int[4];
+	boolean[] hasThisNeighbor = new boolean[4];
+	int x, y;
+
+	public Node(int x, int y) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
+}

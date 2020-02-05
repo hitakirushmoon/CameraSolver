@@ -1,0 +1,22 @@
+package kata;
+
+import java.math.BigInteger;
+
+public class BooleanOrder {
+	char[] operands;
+	char[] operators;
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = operands.toCharArray();
+		this.operators = operators.toCharArray();
+	}
+
+	public BigInteger solve() {
+		// Your code here
+		return BigInteger.ZERO;
+	}
+
+	public BigInteger t(int i, int j) {
+
+	}
+}

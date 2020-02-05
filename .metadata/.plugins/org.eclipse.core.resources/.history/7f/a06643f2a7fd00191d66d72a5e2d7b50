@@ -1,0 +1,25 @@
+package yeet;
+
+import java.util.Arrays;
+
+public class QuickGame {
+	static boolean[] arr = new boolean[52];
+	static int[] winningMove = new int[52];
+	static int[] choices = { 1, 2, 4, 8 };
+
+	public static void main(String[] args) {
+		for (int i = 0; i < arr.length; i++) {
+			if (!arr[i]) {
+				for (int choice : choices) {
+					if (i + choice >= arr.length)
+						break;
+					arr[i + choice] = true;
+					winningMove[i + choice] = choice;
+				}
+			}
+		}
+		System.out.println(Arrays.toString(arr));
+		System.out.println(Arrays.toString(winningMove));
+	}
+
+}

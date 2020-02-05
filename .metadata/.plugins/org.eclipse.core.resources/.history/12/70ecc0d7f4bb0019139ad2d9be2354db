@@ -1,0 +1,28 @@
+package simulation;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class World {
+	double radius;
+	int generation = 0;
+	int time = 0;
+	final int timeLimit;
+	final double foodCount;
+	final int intialCreatureCount;
+	Queue<Creature> creatures = new LinkedList<Creature>();
+	Queue<Place> food = new LinkedList<Place>();
+
+	public World(double radius, int timeLimit, double foodCount, int intialCreatureCount) {
+		super();
+		this.radius = radius;
+		this.timeLimit = timeLimit;
+		this.foodCount = foodCount;
+		this.intialCreatureCount = intialCreatureCount;
+	}
+
+	void reset() {
+		time = 0;
+		generation++;
+	}
+}

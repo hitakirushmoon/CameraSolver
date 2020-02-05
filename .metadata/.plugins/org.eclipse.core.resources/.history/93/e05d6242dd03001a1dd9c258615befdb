@@ -1,0 +1,96 @@
+package kata;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class GraphTest {
+	public static void main(String[] args) {
+		int mod = 3, base = 2;
+		Node[] test = new Node[mod];
+		for (int i = 0; i < test.length; i++) {
+			test[i] = new Node(i);
+		}
+		for (Node n : test) {
+			for (int b = 0; b < base; b++) {
+				int child = (n.value * 2 + b) % mod;
+				if (child == n.value) {
+					n.self = Integer.toString(b);
+				} else {
+					test[child].parents.add(n);
+					n.children.put(test[child], Integer.toString(b));
+				}
+			}
+		}
+		Node root = new Node(-1);
+		Node end = new Node(mod);
+		test[0].parents.add(root);
+		root.children.put(test[0], "");
+		test[0].children.put(end, "");
+		end.parents.add(test[0]);
+		for (int i = 0; i < test.length; i++) {
+			test[i].removeSelf();
+		}
+		System.out.println(root.children.get(end));
+	}
+}
+
+class Node {
+	int value;
+	Map<Node, String> children = new HashMap<Node, String>();
+	List<Node> parents = new ArrayList<Node>();
+	String self = "";
+
+	public Node(int value) {
+		super();
+		this.value = value;
+	}
+
+	void removeSelf() {
+		for (Node parent : parents) {
+			for (Node child : children.keySet()) {
+				child.parents.remove(this);
+				String parentsToThis = parent.children.get(this);
+				String thisToChild = children.get(child);
+				String regex;
+				if (self.isEmpty()) {
+					regex = paren(parentsToThis + thisToChild);
+				} else {
+					regex = paren(parentsToThis + self + "*" + thisToChild);
+				}
+				if (parent == child) {
+					if (!parent.self.isEmpty()) {
+						parent.self = paren(parent.self) + "|" + regex;
+					} else {
+						parent.self = regex;
+					}
+					continue;
+				}
+				if (parent.children.containsKey(child)) {
+					regex = paren(parent.children.get(child)) + "|" + regex;
+				}
+				parent.children.put(child, regex);
+				child.parents.add(parent);
+			}
+			parent.children.remove(this);
+
+		}
+	}
+
+	String paren(String a) {
+		if (a.length() > 2 && !(a.startsWith("(") && a.endsWith("("))) {
+			return "(" + a + ")";
+		}
+		return a;
+	}
+	String concat(String a, String b) {
+		if((a.startsWith("(") && a.endsWith("("))) {
+			a = a.substring(1, a.length() - 1);
+		}
+	}
+
+	public String toString() {
+		return " " + value;
+	}
+}

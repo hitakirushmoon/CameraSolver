@@ -1,0 +1,6 @@
+package pid;
+
+public class Controller implements Renderable {
+	Coordinates targetLocation, currentLocation;
+
+}

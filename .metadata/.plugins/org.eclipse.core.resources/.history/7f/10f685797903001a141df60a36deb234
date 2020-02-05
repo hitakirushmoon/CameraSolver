@@ -1,0 +1,21 @@
+package kata;
+
+public class Snippet {
+	public static void main(String[] args) {
+		Family fam = new Family();
+		fam.setParentOf("Danny","Eve");
+		fam.setParentOf("Christine","Frank");
+		fam.male("Andrea");
+		fam.setParentOf("Christine","Eve");
+		fam.setParentOf("Christine","Bernard");
+		fam.male("Eve");
+		fam.setParentOf("Frank","Frank");
+		fam.male("Andrea");
+		fam.male("Christine");
+		fam.setParentOf("Christine","Eve");
+    	}
+		static void assertEquals(Object a, Object b){
+			System.out.println(a == b);
+		}
+}
+

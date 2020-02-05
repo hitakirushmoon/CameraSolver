@@ -1,0 +1,12 @@
+package kata;
+
+public class CakeCutter {
+	public CakeCutter(String cake) {
+		// Coding and coding
+	}
+
+	public List<String> cut() {
+		// Coding and coding... again!
+		return null;
+	}
+}

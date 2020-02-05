@@ -1,0 +1,54 @@
+package pid;
+
+import java.awt.Graphics2D;
+
+public class Controller implements Renderable {
+	Coordinates target, current;
+	Coordinates P, I, D;
+	Coordinates culmativeError;
+	Coordinates lastError;
+	double kP, kI, kD, maxSpeed;
+
+	public Controller(double kP, double kI, double kD, double maxSpeed) {
+		culmativeError = new Coordinates(0, 0);
+		lastError = new Coordinates(0, 0);
+		this.kP = kP;
+		this.kI = kI;
+		this.kD = kD;
+		this.maxSpeed = maxSpeed;
+	}
+
+	public void setTarget(Coordinates target) {
+		this.target = target;
+	}
+
+	public void setCurrent(Coordinates current) {
+		this.current = current;
+	}
+
+	public void update() {
+		if (target != null && current != null) {
+			Coordinates e = current.getVectorTo(target);
+			culmativeError.add(e);
+			P = e.clone().scale(kP);
+			I = culmativeError.clone().scale(-kI);
+			D = e.getVectorTo(lastError);
+			lastError = e;
+			Coordinates direction = P.clone().add(I).add(D);
+			if (direction.size() > maxSpeed) {
+				direction.normalize().scale(maxSpeed);
+			}
+			
+		}
+	}
+
+	@Override
+	public void render(Graphics2D g) {
+		if (target != null && current != null) {
+			target.render(g);
+			current.render(g);
+			new Segment(target, current).render(g);
+		}
+	}
+
+}

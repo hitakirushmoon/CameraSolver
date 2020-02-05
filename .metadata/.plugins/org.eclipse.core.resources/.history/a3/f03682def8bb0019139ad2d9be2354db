@@ -1,0 +1,34 @@
+package simulation;
+
+public class Creature {
+	double direction;
+	double speed;
+	double size;
+	double sense;
+	double energy;
+	World world;
+	Place position;
+	Place target;
+
+	public Creature(World world, double posX, double posY, double speed, double size, double sense) {
+		this.position = new Place(posX, posY);
+		this.world = world;
+		this.direction = Math.atan2(posY, posX);
+		this.speed = speed;
+		this.size = size;
+		this.sense = sense;
+		this.energy = 1;
+	}
+
+	void updateTarget() {
+	}
+
+	void move() {
+	}
+
+	void eat() {
+	}
+
+	void reproduce() {
+	}
+}

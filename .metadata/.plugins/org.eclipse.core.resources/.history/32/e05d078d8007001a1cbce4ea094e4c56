@@ -1,0 +1,52 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+public class MazeSolver {
+	Cell[][][] fullMaze;
+
+	public MazeSolver(int[][] maze) {
+		fullMaze = new Cell[4][maze.length][maze[0].length];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[i].length; j++) {
+
+				fullMaze[0][i][j] = new Cell(maze[i][j]);
+				for (int k = 1; k < fullMaze.length; k++) {
+					fullMaze[k][i][j] = new Cell();
+				}
+			}
+		}
+	}
+
+	public List<String> solve() {
+		// Your code here too!
+		return Arrays.asList("");
+	}
+}
+
+class Cell {
+	boolean leftWall;
+	boolean rightWall;
+	boolean bottomWall;
+	boolean topWall;
+	Cell thisNextInterval;
+	List<Cell> neighbors = new LinkedList<Cell>();
+	List<Cell> neighborsNextInterval = new LinkedList<Cell>();
+
+	public Cell(int index) {
+		topWall = index / 8 == 1;
+	}
+
+	public Cell(boolean leftWall, boolean rightWall, boolean bottomWall, boolean topWall) {
+		this.leftWall = leftWall;
+		this.rightWall = rightWall;
+		this.bottomWall = bottomWall;
+		this.topWall = topWall;
+	}
+
+	public Cell createNextInterveal() {
+		return new Cell(bottomWall, topWall, leftWall, rightWall);
+	}
+}

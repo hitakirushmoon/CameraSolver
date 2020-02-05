@@ -1,0 +1,235 @@
+package kata;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+public class Family {
+
+	List<Person> people = new LinkedList<Person>();
+
+	public boolean male(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				if (person.gender == 0) {
+					person.gender = 1;
+					
+					if (!person.spouses.isEmpty()) {
+						for (Person p : person.spouses) {
+							if (!female(p.name)) {
+								return false;
+							}
+						}
+					}
+				}
+				return person.gender == 1;
+			}
+		}
+		Person p = new Person(name);
+		p.gender = 1;
+		people.add(p);
+		return true;
+	}
+
+	public boolean isMale(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				return person.gender == 1;
+			}
+		}
+		people.add(new Person(name));
+		return false;
+	}
+
+	public boolean female(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				if (person.gender == 0) {
+					if (!person.spouses.isEmpty()) {
+						for (Person p : person.spouses) {
+							if(p.gender == 2) {
+								return false;
+							}
+							if (!male(p.name)) {
+								return false;
+							}
+						}
+					}
+					person.gender = 2;
+				}
+				return person.gender == 2;
+			}
+		}
+		Person p = new Person(name);
+		p.gender = 2;
+		people.add(p);
+		return true;
+	}
+
+	public boolean isFemale(String name) {
+		for (Person person : people) {
+			if (person.equals(name)) {
+				return person.gender == 2;
+			}
+		}
+		people.add(new Person(name));
+		return false;
+	}
+
+	public boolean setParentOf(String childName, String parentName) {
+		if (childName.equals(parentName)) {
+			return false;
+		}
+		Person child = new Person(childName), parent = new Person(parentName);
+		boolean childExists = false, parentExists = false;
+		for (Person person : people) {
+			if (person.equals(childName)) {
+				child = person;
+				childExists = true;
+				continue;
+			}
+			if (person.equals(parentName)) {
+				parent = person;
+				parentExists = true;
+				continue;
+			}
+		}
+		if (!childExists && !parentExists) {
+			people.add(child);
+			people.add(parent);
+			child.parents.add(parent);
+			parent.children.add(child);
+			return true;
+		}
+		if (!childExists) {
+			people.add(child);
+			child.parents.add(parent);
+			parent.children.add(child);
+			return true;
+		}
+		if (!parentExists) {
+			people.add(parent);
+			if (child.parents.size() > 1) {
+				return false;
+			}
+			if (child.parents.size() > 0) {
+				Person currentParent = child.parents.get(0);
+				parent.gender = (3 - currentParent.gender) % 3;
+				parent.spouses.add(currentParent);
+				currentParent.spouses.add(parent);
+			}
+			child.parents.add(parent);
+			parent.children.add(child);
+			return true;
+		}
+		if (!parent.canBeGrandparentsOfThis(child)) {
+			return false;
+		}
+		if (child.parents.size() == 2) {
+			return false;
+		}
+		if (child.parents.size() == 1) {
+			Person currentParent = child.parents.get(0);
+			if (currentParent.name == parent.name) {
+				return true;
+			}
+			if (currentParent.gender == parent.gender && parent.gender != 0) {
+				return false;
+			}
+			if (currentParent.gender == 2) {
+				if (!male(parent.name)) {
+					return false;
+				}
+			} else if (currentParent.gender == 1) {
+				if (!female(parent.name)) {
+					return false;
+				}
+			} else if (parent.gender == 2) {
+				if (!male(currentParent.name)) {
+					return false;
+				}
+			} else if (parent.gender == 1) {
+				if (!female(currentParent.name)) {
+					return false;
+				}
+			}
+			parent.spouses.add(currentParent);
+			currentParent.spouses.add(parent);
+			child.parents.add(parent);
+			parent.children.add(child);
+
+			return true;
+		}
+		if (child.parents.size() == 0) {
+			child.parents.add(parent);
+			parent.children.add(child);
+			return true;
+		}
+		return true;
+	}
+
+	public List<String> getParentsOf(String name) {
+		List<String> parents = new LinkedList<String>();
+		for (Person person : people) {
+			if (person.equals(name)) {
+				person.parents.forEach(x -> parents.add(x.name));
+				Collections.sort(parents);
+				return parents;
+			}
+		}
+		people.add(new Person(name));
+		return parents;
+	}
+
+	public List<String> getChildrenOf(String name) {
+		List<String> children = new LinkedList<String>();
+		for (Person person : people) {
+			if (person.equals(name)) {
+				person.children.forEach(x -> children.add(x.name));
+				Collections.sort(children);
+				return children;
+			}
+		}
+		people.add(new Person(name));
+		return children;
+	}
+}
+
+class Person {
+	String name;
+	int gender;
+	List<Person> parents = new LinkedList<Person>();
+	List<Person> children = new LinkedList<Person>();
+	List<Person> spouses = new LinkedList<Person>();
+
+	public Person(String name) {
+		this.name = name;
+	}
+
+	public boolean equals(Object arg) {
+		if (arg instanceof Person) {
+			Person person = (Person) arg;
+			return person.name.equals(name);
+		} else if (arg instanceof String) {
+			String name = (String) arg;
+			return name.equals(this.name);
+		}
+		return false;
+	}
+
+	public boolean equals(String name) {
+		return name.equals(this.name);
+	}
+
+	public boolean canBeGrandparentsOfThis(Person child) {
+		for (Person parent : parents) {
+			if (parent == child) {
+				return false;
+			}
+			if (!parent.canBeGrandparentsOfThis(child)) {
+				return false;
+			}
+		}
+		return true;
+	}
+}

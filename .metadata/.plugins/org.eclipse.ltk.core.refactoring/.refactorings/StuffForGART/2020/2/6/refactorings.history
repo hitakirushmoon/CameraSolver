@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename method &apos;gart.Main.generatePermutation(...)&apos; to &apos;generateSublist&apos;&#x0D;&#x0A;- Original project: &apos;StuffForGART&apos;&#x0D;&#x0A;- Original element: &apos;gart.Main.generatePermutation(...)&apos;&#x0D;&#x0A;- Renamed element: &apos;gart.Main.generateSublist(...)&apos;&#x0D;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;generatePermutation&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;gart{Main.java[Main~generatePermutation~\[I~I" name="generateSublist" references="true" stamp="1580810875085" version="1.0"/>
+</session>

@@ -1,0 +1,7 @@
+package kata;
+public class Line {
+   public static String WhoIsNext(String[] names, int n)
+     {
+      
+      }
+}

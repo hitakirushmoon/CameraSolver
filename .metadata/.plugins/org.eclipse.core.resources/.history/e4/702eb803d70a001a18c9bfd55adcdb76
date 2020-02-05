@@ -1,0 +1,70 @@
+package kata;
+
+public class BreakPieces {
+	public static void main(String[] args) {
+		String shape = String.join("\n", new String[] { "+------------+", "|            |", "|            |",
+				"|            |", "+------+-----+", "|      |     |", "|      |     |", "+------+-----+" });
+		process(shape);
+	}
+
+	public static String[] process(String shape) {
+		String[] lmao = shape.split("\n");
+		Node[][] map = new Node[lmao.length][lmao[0].length()];
+		for (int i = 0; i < lmao.length; i++) {
+			for (int j = 0; j < lmao[i].length(); j++) {
+				if (lmao[i].charAt(j) == '+') {
+					map[i][j] = new Node(i, j);
+					if (j < lmao[i].length() - 1)
+						map[i][j].hasThisNeighbor[0] = lmao[i].charAt(j + 1) == '-';
+					if (i < lmao.length)
+						map[i][j].hasThisNeighbor[1] = lmao[i + 1].charAt(j) == '|';
+					if (j > 0)
+						map[i][j].hasThisNeighbor[2] = lmao[i].charAt(j - 1) == '-';
+					if (i > 0)
+						map[i][j].hasThisNeighbor[3] = lmao[i - 1].charAt(j) == '|';
+				}
+			}
+		}
+		for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map[i].length; j++) {
+				if (map[i][j] != null) {
+					if (map[i][j].hasThisNeighbor[0]) {
+						for (int k = 0; map[i][j].neighbors[0] == null; k++) {
+							if (map[i][j + k] != null) {
+								map[i][j].neighbors[0] = map[i][j + k];
+								map[i][j + k].neighbors[2] = map[i][j];
+							}
+						}
+					}
+					if (map[i][j].hasThisNeighbor[1]) {
+						for (int k = 0; map[i][j].neighbors[1] == null; k++) {
+							if (map[i + k][j] != null) {
+								map[i][j].neighbors[1] = map[i + k][j];
+								map[i + k][j].neighbors[3] = map[i][j];
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return lmao;
+	}
+}
+
+class Node {
+	Node[] neighbors = new Node[4];
+	int[] costs = new int[4];
+	boolean[] hasThisNeighbor = new boolean[4];
+	int x, y;
+
+	public Node(int x, int y) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
+
+	public String toString() {
+		return "x: " + x + ", y: " + y;
+	}
+}

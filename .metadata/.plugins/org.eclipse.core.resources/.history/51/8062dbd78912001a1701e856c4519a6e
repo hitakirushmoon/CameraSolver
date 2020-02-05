@@ -1,0 +1,61 @@
+package kata;
+
+import java.math.BigInteger;
+import java.util.stream.IntStream;
+
+public class BooleanOrder {
+	boolean[] operands;
+	char[] operators;
+	BigInteger[][] t;
+	BigInteger[][] f;
+
+	public static void main(String[] args) {
+		System.out.println(new BooleanOrder("ttftfftf","|&^&&||").solve());
+	}
+
+	public BooleanOrder(final String operands, final String operators) {
+		this.operands = new boolean[operands.length()];
+		IntStream.range(0, this.operands.length).forEach(i -> this.operands[i] = operands.charAt(i) == 't');
+		this.operators = operators.toCharArray();
+		t = new BigInteger[operands.length()][operands.length()];
+		f = new BigInteger[operands.length()][operands.length()];
+
+		for (int i = 0; i < operands.length(); i++) {
+			if (this.operands[i]) {
+				t[i][i] = BigInteger.ONE;
+				f[i][i] = BigInteger.ZERO;
+			} else {
+				f[i][i] = BigInteger.ONE;
+				t[i][i] = BigInteger.ZERO;
+			}
+		}
+	}
+
+	public BigInteger solve() {
+		for (int g = 1; g < operands.length; g++) {
+			for (int i = 0; i + g < operands.length; i++) {
+				int j = i + g;
+				t[i][j] = BigInteger.ZERO;
+				f[i][j] = BigInteger.ZERO;
+				for (int k = i; k < j; k++) {
+					BigInteger tik = t[i][k].add(f[i][k]);
+					BigInteger tkj = t[k + 1][j].add(f[k + 1][j]);
+					if (operators[k] == '&') {
+						t[i][j] = t[i][j].add(t[i][k].multiply(t[k + 1][j]));
+						f[i][j] = f[i][j].add((tik.multiply(tkj)).subtract(t[i][k].multiply(t[k + 1][j])));
+					}
+					else if (operators[k] == '|') {
+						f[i][j] = f[i][j].add(f[i][k].multiply(f[k + 1][j]));
+						t[i][j] = t[i][j].add((tik.multiply(tkj)).subtract(f[i][k].multiply(f[k + 1][j])));
+					} else {
+						t[i][j] = t[i][j].add(f[i][k].multiply(t[k + 1][j])).add(t[i][k].multiply(f[k + 1][j]));
+						f[i][j] = f[i][j].add(f[i][k].multiply(f[k + 1][j])).add(t[i][k].multiply(t[k + 1][j]));
+					}
+				}
+			}
+		}
+
+		return t[0][operators.length];
+	}
+
+}

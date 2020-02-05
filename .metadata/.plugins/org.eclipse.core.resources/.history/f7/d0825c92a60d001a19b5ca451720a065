@@ -1,0 +1,30 @@
+package kata;
+
+import java.util.LinkedList;
+import java.util.List;
+
+public class CountBinary {
+	public static void main(String[] args) {
+//		Set<String> stable = new TreeSet<String>();
+		for (int i = 0; i < 100; i++) {
+			String test = Integer.toString(i);
+			LinkedList<String> found = new LinkedList<String>();
+			while (!found.contains(test)) {
+				found.add(test);
+				test = countBin(test, 3);
+			}
+			System.out.println(found);
+		}
+	}
+
+	public static String countBin(String s, int n) {
+		List<String> counts = new LinkedList<String>();
+		for (int digit = 0; digit < n; digit++) {
+			int count = s.length() - s.replace(Integer.toString(digit, n), "").length();
+			if (count != 0) {
+				counts.add(Integer.toString(count, n) + digit);
+			}
+		}
+		return String.join(" ", counts);
+	}
+}

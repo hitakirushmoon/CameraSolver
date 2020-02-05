@@ -1,0 +1,27 @@
+package kata;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Line {
+	public static void main(String[] args) {
+		String[] names = new String[] { "Sheldon", "Leonard", "Penny", "Rajesh", "Howard" };
+		int n = 6;
+		System.out.println(WhoIsNext(names, n));
+
+	}
+
+	public static String WhoIsNext(String[] names, int n) {
+		Queue<String> theLongWay = new LinkedList<String>();
+		for (String name : names) {
+			theLongWay.add(name);
+		}
+		while (n > 0) {
+			String currentName = theLongWay.poll();
+			theLongWay.add(currentName);
+			theLongWay.add(currentName);
+			n--;
+		}
+		return theLongWay.peek();
+	}
+}

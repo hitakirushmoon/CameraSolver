@@ -1,0 +1,26 @@
+package main;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
+public class Main {
+	public static void main(String[] args) {
+//		SwingUtilities.invokeLater(new Runnable(){
+//			public void run(){
+//				new MainWindow();
+//			}
+//		});
+//	}
+		int[] list = new int[43];
+		List<Integer> rand = new LinkedList<Integer>();
+		for (int i = 0; i < 43; i++) {
+			rand.add(i + 1);
+			list[i] = i + 1;
+		}
+		Random random = new Random();
+		while (!rand.isEmpty()) {
+			System.out.println(rand.get(random.nextInt(rand.size())));
+		}
+	}
+}

@@ -1,0 +1,19 @@
+package kata;
+
+public class Line {
+	public static void main(String[] args) {
+		Human h1 = new Human("Dzung", 15);
+		Human h2 = new Human("Minh", 16);
+		System.out.println(h1.name);
+	}
+
+}
+
+class Human{
+	final String name;
+	int age;
+	Human(String name, int age){
+		this.name = name;
+		this.age = age;
+	}
+}

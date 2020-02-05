@@ -1,0 +1,89 @@
+package kata;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class CakeCutter {
+
+	String cake;
+
+	public static void main(String[] args) {
+		String cake = String.join("\n",
+				Arrays.asList(".o","o."));
+		System.out.println(new CakeCutter(cake).cut());
+	}
+
+	public CakeCutter(String cake) {
+		this.cake = cake;
+	}
+
+	Set<Integer> cakeSizes = new TreeSet<Integer>();
+
+	public List<String> cut() {
+		System.out.println(cake);
+		String[] slices = cake.split("\n");
+		int m = slices.length;
+		int n = slices[0].length();
+		int count = cake.length() - cake.replace("o", "").length();
+		if (m * n % count != 0) {
+			return null;
+		}
+
+		int sizeOfRects = m * n / count;
+		for (int i = 1; i < Math.sqrt(sizeOfRects); i++) {
+			if (sizeOfRects % i == 0) {
+				cakeSizes.add(i);
+				cakeSizes.add(sizeOfRects / i);
+			}
+		}
+		boolean[][] matrix = new boolean[m * n][m * n * cakeSizes.size()];
+		System.out.println(cakeSizes);
+		int raisin = 0;
+		for (int x = 0; x < m && raisin < count; x++) {
+			for (int y = 0; y < n && raisin < count; y++) {
+				if (slices[x].charAt(y) == 'o') {
+					int factor = 0;
+					for (Integer i : cakeSizes) {
+						int w = i;
+						int h = sizeOfRects / i;
+						for (int xShift = 0; xShift < w; xShift++) {
+							if (x - xShift < 0 || x - xShift + w > m) {
+								continue;
+							}
+							for (int yShift = 0; yShift < h; yShift++) {
+								if (y - yShift < 0 || y - yShift + h > n) {
+									continue;
+								}
+//								raisin 0 -> count, factor 0 -> cakeSizes.size(), xShift 0 -> w, yShift 0 -> h
+								int index = yShift + h * (xShift + w * (raisin + count * factor));
+								for (int xFill = 0; xFill < w; xFill++) {
+									for (int yFill = 0; yFill < h; yFill++) {
+										System.out.println((x - xShift + xFill) + "" + (y - yShift + yFill));
+//										System.out.println();
+										matrix[(x - xShift + xFill) * h + y - yShift + yFill][index] = true;
+										;
+									}
+								}
+							}
+						}
+						factor++;
+					}
+					raisin++;
+				}
+			}
+		}
+		for(boolean[] b : matrix) {
+			System.out.println(Arrays.toString(b));
+		}
+		DancingLinks solver = new DancingLinks(matrix);
+		solver.search();
+		for (LinkedList<Node> solution : solver.solutions) {
+			System.out.println(solution);
+		}
+//		return solver.solution;
+		return null;
+	}
+}

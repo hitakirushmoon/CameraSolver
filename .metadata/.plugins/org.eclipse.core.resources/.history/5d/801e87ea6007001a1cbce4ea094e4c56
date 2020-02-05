@@ -1,0 +1,23 @@
+package kata;
+
+import java.util.*;
+
+public class MazeSolver {
+	int[][][] fullMaze;
+
+	public MazeSolver(int[][] maze) {
+		fullMaze = new int[4][maze.length][];
+		for (int i = 0; i < maze.length; i++) {
+			for (int j = 0; j < maze[i].length; j++) {
+				for (int k = 0; k < fullMaze.length; k++) {
+
+				}
+			}
+		}
+	}
+
+	public List<String> solve() {
+		// Your code here too!
+		return Arrays.asList("");
+	}
+}

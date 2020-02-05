@@ -1,0 +1,21 @@
+package main;
+
+import java.util.HashSet;
+import java.util.Random;
+
+public class Main {
+	public static void main(String[] args) {
+//		SwingUtilities.invokeLater(new Runnable(){
+//			public void run(){
+//				new MainWindow();
+//			}
+//		});
+//	}
+		Random random = new Random();
+		HashSet<Integer> list = new HashSet<Integer>();
+		while (list.size() < 43) {
+			list.add(random.nextInt(43));
+		}
+		System.out.println(list);
+	}
+}

@@ -1,0 +1,80 @@
+package yeet.linegame;
+
+import java.util.LinkedList;
+
+public class Partition {
+	public static void main(String[] args) {
+		genPartition(5).forEach(x -> System.out.println(x + " " + partitionIndexing(x)));
+		genPartition(4).forEach(x -> System.out.println(x + " " + partitionIndexing(x)));
+		genPartition(3).forEach(x -> System.out.println(x + " " + partitionIndexing(x)));
+		genPartition(2).forEach(x -> System.out.println(x + " " + partitionIndexing(x)));
+		genPartition(1).forEach(x -> System.out.println(x + " " + partitionIndexing(x)));
+		}
+
+	public static int partitionRank(LinkedList<Integer> partition) {
+		return partition.peekFirst() - partition.size();
+	}
+
+	public static int partitionIndexing(LinkedList<Integer> partition) {
+		int n = 0;
+		for (int i = 0; i < partition.size(); i++) {
+			int a = partition.remove();
+			n += a;
+			partition.add(a);
+		}
+
+		return partitionIndexing(new LinkedList<Integer>(partition), n);
+	}
+
+	private static int partitionIndexing(LinkedList<Integer> partition, int n) {
+		int sum = 0;
+		int a = 0;
+		for (int i = 0; i < n; i++) {
+			a += p(n);
+		}
+		while (!partition.isEmpty()) {
+			int k = partition.removeFirst();
+			sum += p(n, k - 1);
+			n -= k;
+		}
+		return sum + a;
+	}
+
+	public static LinkedList<LinkedList<Integer>> genPartition(int n) {
+		return genPartition(n, n);
+	}
+
+	private static LinkedList<LinkedList<Integer>> genPartition(int n, int limit) {
+		LinkedList<LinkedList<Integer>> solutions = new LinkedList<LinkedList<Integer>>();
+		if (n == 0) {
+			LinkedList<Integer> identity = new LinkedList<Integer>();
+			solutions.add(identity);
+		} else {
+			for (int i = limit; i > 0; i--) {
+				LinkedList<LinkedList<Integer>> partialSolution = genPartition(n - i, Math.min(n - i, i));
+				int a = i;
+				partialSolution.forEach(x -> x.addFirst(a));
+				solutions.addAll(partialSolution);
+			}
+		}
+		return solutions;
+	}
+
+	public static int p(int n) {
+		return p(n, n);
+	}
+
+	public static int p(int n, int k) {
+		if (n < 0) {
+			return 0;
+		}
+		if (n == 0) {
+			return 1;
+		}
+		if (k == 0) {
+			return 0;
+		}
+
+		return p(n - k, k) + p(n, k - 1);
+	}
+}
